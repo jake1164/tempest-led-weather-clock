@@ -55,6 +55,7 @@ class OpenWeather():
             print('Unable to display secondary info', ex)
 
 
+# TODO: Is this unused.. I think so.
     ''' Show the weather and conditions from OWM '''
     def show_weather(self, display):
         try:
@@ -63,10 +64,12 @@ class OpenWeather():
             print('Unable to get weather', ex)
             weather = None
 
+        ## TODO: Add the date here.
+
         if weather == None or weather == {} or weather["main"] == None:
             return
         try:
-            display.set_temperature(weather["main"]["temp"])        
+            display.set_temperature(weather["main"]["temp"])
             display.set_humidity(weather["main"]["humidity"])
             display.set_feels_like(weather["main"]["feels_like"])
             display.set_wind(weather["wind"]["speed"])

@@ -37,6 +37,7 @@ class Weather():
 
     def show_datetime(self) -> bool:
         self._weather_display.set_time(self._datetime.get_time())
+        # TODO: This is overpowering the list.
         self._weather_display.set_date(
             self._datetime.get_date()
         )
