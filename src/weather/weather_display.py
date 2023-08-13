@@ -176,7 +176,6 @@ class WeatherDisplay(displayio.Group):
             time.sleep(SCROLL_END_WAIT)
             self._scrolling_group.pop()
             gc.collect()
-        print(f'queue size {len(self.scroll_queue)}')
 
     def show(self):
         self._display.show(self.root_group)

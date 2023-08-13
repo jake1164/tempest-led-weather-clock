@@ -44,7 +44,6 @@ class WifiNetwork:
         raise Exception('Unable to connect')
 
 
-
     def get_time(self):
         # Need better connection testing
         # has IP before connecting.
@@ -62,20 +61,22 @@ class WifiNetwork:
             requests = adafruit_requests.Session(pool, ssl.create_default_context())
             print('getting url:', url)
             gc.collect()
-            print('free memory', gc.mem_free())
+            mem = gc.mem_free()
+            print('free memory', mem)
             try:
-
                 #response = requests.get(url, stream=True) 
                 response = requests.get(url) 
-                print('free memory after', gc.mem_free())
-                return response.json()
+                print(f'free memory after get() {gc.mem_free()}, used memory: {mem - gc.mem_free()}')
+                return response.json()                
             except Exception as e:
                 print('response.get() exception thrown', e)
+
+            
         except Exception as e:
             print('response.json Exception:', e)
             gc.collect()
-        return {}        
-
+        print('returning empty json')
+        return {}
 
 
     def get_interval(self):
@@ -84,5 +85,3 @@ class WifiNetwork:
 
     def get_pool(self):
         pass
-
-

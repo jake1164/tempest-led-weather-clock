@@ -47,7 +47,7 @@ SETTINGS = [
     ]
 
 
-class DisplaySubsystem(displayio.Group):
+class SettingsDisplay(displayio.Group):
     def __init__(self, display, datetime_processing):
         super().__init__()
         display.rotation = 0
