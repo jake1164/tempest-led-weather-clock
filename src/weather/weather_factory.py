@@ -19,7 +19,7 @@ def Factory(api, weather_display, datetime, network):
 class Weather():    
     ''' Weather takes a primary and secondary weather api. '''
     def __init__(self, apis, weather_display, datetime) -> None:
-        self._display_current = None
+        self._is_display_on = None
         self.SKIP_SECONDARY = 4 # Skip this many times between updates
         self._datetime = datetime
         self._weather_display = weather_display
@@ -37,19 +37,20 @@ class Weather():
 
     def show_datetime(self) -> bool:
         self._weather_display.set_time(self._datetime.get_time())
+        # TODO: This is overpowering the list.
         self._weather_display.set_date(
             self._datetime.get_date()
         )
 
         # Only adjust the brightness once
-        if self._datetime.display_on != self._display_current:
-            self._weather_display.brightness = 0.1 if self._datetime.display_on else 0.0
-            self._display_current = self._datetime.display_on
+        if self._datetime.is_display_on != self._is_display_on:
+            self._weather_display.brightness = 0.1 if self._datetime.is_display_on else 0.0
+            self._is_display_on = self._datetime.is_display_on
 
-        if self._datetime.display_on:            
+        if self._datetime.is_display_on:            
             self._weather_display.show()            
 
-        return self._display_current
+        return self._is_display_on
 
 
     def get_update_interval(self):
@@ -59,6 +60,7 @@ class Weather():
     def scroll_label(self, key_input):
         self._weather_display.scroll_label(key_input)
 
-    def display_on(self):        
-        self._weather_display.brightness = 0.1        
-        self._display_current = True
+    def display_off(self):        
+        #self._weather_display.brightness = 0.1        
+        self._datetime.is_display_on = False
+        self._is_display_on = False
