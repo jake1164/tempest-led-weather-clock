@@ -158,7 +158,10 @@ class WeatherDisplay(displayio.Group):
         Scrolls the label until all the text has been shown
         TODO: Includes a hack to check if a button has been pressed to exit early because user is trying to get into the settings menu.
         '''      
-        # Take the top item to display
+        # Button press leaves items in scroll group and mucks things up
+        while len(self._scrolling_group) > 0:
+            self._scrolling_group.pop()
+            
         if self.scroll_queue:
             scroll_text = self.scroll_queue.popleft()
             scroll_label = bitmap_label.Label(self._small_font, color=COLOR_DARK if self._dark_mode else COLOR_SCROLL , text=scroll_text)
