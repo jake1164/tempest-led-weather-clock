@@ -68,6 +68,7 @@ bg = displayio.TileGrid(
     tile_width=16,
     tile_height=16
 )
+bg[0] = 0 + 1
 splash.append(bg)
 display.show(splash)
 
@@ -113,6 +114,9 @@ last_ntp = time.time()
 weather.show_weather()
 last_weather = time.time()
 settings_visited = False
+
+# remove splash from memory
+del bg, splash
 
 print('free memory', gc.mem_free())
 while True:

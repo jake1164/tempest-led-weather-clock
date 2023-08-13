@@ -3,7 +3,7 @@ import gc
 import os
 import displayio
 from collections import deque
-from adafruit_display_text.label import Label
+from adafruit_display_text import bitmap_label
 from adafruit_bitmap_font import bitmap_font
 
 COLOR_SCROLL = 0x0000DD  # Dark blue
@@ -46,11 +46,11 @@ class WeatherDisplay(displayio.Group):
         self._icon_group.x = 48
         self._icon_group.y = 0
 
-        self.temperature = Label(self._small_font, color=COLOR_TEMP)        
+        self.temperature = bitmap_label.Label(self._small_font, color=COLOR_TEMP)        
         self.temperature.x = 1
         self.temperature.y = 5
 
-        self.time = Label(self._small_font, color=COLOR_TIME)
+        self.time = bitmap_label.Label(self._small_font, color=COLOR_TIME)
         self.time.anchor_point = (0, 0)
         self.time.x = 0
         self.time.y = 15
@@ -161,7 +161,7 @@ class WeatherDisplay(displayio.Group):
         # Take the top item to display
         if self.scroll_queue:
             scroll_text = self.scroll_queue.popleft()
-            scroll_label = Label(self._small_font, color=COLOR_DARK if self._dark_mode else COLOR_SCROLL , text=scroll_text)
+            scroll_label = bitmap_label.Label(self._small_font, color=COLOR_DARK if self._dark_mode else COLOR_SCROLL , text=scroll_text)
             text_length = scroll_label.bounding_box[2]
 
             self._scrolling_group.x = self._display.width
@@ -175,6 +175,7 @@ class WeatherDisplay(displayio.Group):
                 time.sleep(SCROLL_DELAY)
             time.sleep(SCROLL_END_WAIT)
             self._scrolling_group.pop()
+            del scroll_label
             gc.collect()
 
     def show(self):
