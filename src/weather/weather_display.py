@@ -93,13 +93,17 @@ class WeatherDisplay(displayio.Group):
         self.temperature.text = self.get_temperature(temp)
 
 
+    def hide_temperature(self):
+        self.temperature.text = ""
+        #if self._icon_group:
+        #    self._icon_group.pop()
+
+
     def get_temperature(self, temp):        
         if self.units == 'metric':
             unit = "%d°C"
         else:
-            unit = "%d°F"
-            
-        
+            unit = "%d°F"                    
         return unit % temp
 
 
@@ -126,8 +130,11 @@ class WeatherDisplay(displayio.Group):
         gc.collect()
 
 
-    def set_time(self, time_string):
-        self.time.text = time_string
+    def set_time(self, time_string) -> bool:
+        if self.time.text != time_string:
+            self.time.text = time_string
+            return True        
+        return False
 
     
     def set_humidity(self, humidity):
@@ -151,6 +158,10 @@ class WeatherDisplay(displayio.Group):
             self.scroll_queue.append(f'wind {wind} mph')
         else:
             self.scroll_queue.append(f'wind {wind} m/s')
+
+
+    def add_text_display(self, text):
+        self.scroll_queue.append(text)
 
 
     def scroll_label(self, key_input):

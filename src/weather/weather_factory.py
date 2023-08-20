@@ -27,8 +27,12 @@ class Weather():
         self._secondary = apis['SECONDARY'] if len(apis) == 2 else None
         self.skip = 0
 
-    def show_weather(self):        
-        self._primary.show_weather(self._weather_display)        
+    def show_weather(self):  
+        self._weather_display.set_date(
+            self._datetime.get_date()
+        )
+
+        self._primary.show_weather(self._weather_display)
         if self._secondary and self.skip == 0: #TODO reduce the frequency of secondary calls
             self.skip = self.SKIP_SECONDARY
             self._secondary.show_secondary(self._weather_display)
@@ -36,18 +40,14 @@ class Weather():
             self.skip -= 1
 
     def show_datetime(self) -> bool:
-        self._weather_display.set_time(self._datetime.get_time())
-        # TODO: This is overpowering the list.
-        self._weather_display.set_date(
-            self._datetime.get_date()
-        )
+        changed = self._weather_display.set_time(self._datetime.get_time())
 
         # Only adjust the brightness once
         if self._datetime.is_display_on != self._is_display_on:
             self._weather_display.brightness = 0.1 if self._datetime.is_display_on else 0.0
             self._is_display_on = self._datetime.is_display_on
 
-        if self._datetime.is_display_on:            
+        if changed and self._datetime.is_display_on:
             self._weather_display.show()            
 
         return self._is_display_on
@@ -59,6 +59,7 @@ class Weather():
 
     def scroll_label(self, key_input):
         self._weather_display.scroll_label(key_input)
+        
 
     def display_off(self):        
         #self._weather_display.brightness = 0.1        

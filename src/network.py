@@ -79,7 +79,7 @@ class WifiNetwork:
         return {}
 
 
-    def get_interval(self):
+    def get_interval(self) -> str:
         return int(self.INTERVAL)
 
 

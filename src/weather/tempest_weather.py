@@ -14,6 +14,8 @@ class TempestWeather():
         station = os.getenv('TEMPEST_STATION')
         self._url = URL.format(station, token)
         #self._url = BETTER_URL.format(station, token)
+        self._missed_weather = 0
+
 
     def get_weather(self):
         weather = self._network.getJson(self._url)
@@ -29,14 +31,23 @@ class TempestWeather():
 
     def show_weather(self, weather_display):
         try:
-            weather = self.get_weather()
+            weather = self.get_weather()            
         except Exception as ex:
             print('unable to get weather', ex)
             weather = None
 
         if weather == {} or weather['obs'] == None or len(weather['obs']) == 0:
+            if self._missed_weather > 5: 
+                weather_display.hide_temperature()
+                weather_display.add_text_display("Unable to contact API")
+            else:
+                self._missed_weather += 1
+            
             weather_display.show()
             return
+        else: 
+            self._missed_weather = 0
+
 
         try:                
             if 'air_temperature' in weather['obs'][0].keys():
