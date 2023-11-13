@@ -23,11 +23,17 @@ Implementation Notes
 
 """
 
-__version__ = "2.28.3"
+__version__ = "3.0.4"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Display_Text.git"
 
 import displayio
 from adafruit_display_text import LabelBase
+
+try:
+    import bitmaptools
+except ImportError:
+    # We have a slower fallback for bitmaptools
+    pass
 
 try:
     from typing import Optional, Tuple
@@ -440,7 +446,7 @@ class Label(LabelBase):
 
                     self._blit(
                         bitmap,
-                        xposition + my_glyph.dx,
+                        max(xposition + my_glyph.dx, 0),
                         y_blit_target,
                         my_glyph.bitmap,
                         x_1=glyph_offset_x,
@@ -481,6 +487,18 @@ class Label(LabelBase):
                 x2=x_2,
                 y2=y_2,
                 skip_index=skip_index,
+            )
+        elif hasattr(bitmaptools, "blit"):
+            bitmaptools.blit(
+                bitmap,
+                source_bitmap,
+                x,
+                y,
+                x1=x_1,
+                y1=y_1,
+                x2=x_2,
+                y2=y_2,
+                skip_source_index=skip_index,
             )
 
         else:  # perform pixel by pixel copy of the bitmap
