@@ -9,7 +9,8 @@ DEFAULT_SETTINGS = {
     "NIGHT_LEVEL": 2800, # Sets the level that the display turns to dark colors
     "AUTODIM": True,     # Turns off LED based on / off times set.
     "OFF_TIME": 22,      # What hour does the LED turn off
-    "ON_TIME": 6         # What hour does the LED turn back on
+    "ON_TIME": 6,         # What hour does the LED turn back on
+    "NTP_ENABLED": True
     }
 
 
@@ -74,8 +75,8 @@ class Settings:
         with open(self._settings_file, 'w') as file:
             try:
                 json.dump(content, file)
-            except Exception as e:
-                print('Unable to write file', e)
+            except OSError as e:
+                print(f'Could not write to file: ', e)
 
 
     def persist_settings(self):
@@ -83,10 +84,9 @@ class Settings:
             try:
                 with open(self._settings_file, 'w') as file:                                
                     json.dump(self._settings, file)
-            except Exception as e:
-                self._disabled = True
-                print('Unable to write file', e)
-        
+            except OSError as e:
+                self._disabled = True # Do not attempt to continue to save file if write protected.
+                print(f'Could not write to file: ', e)
         self._dirty = False
         pass
 
@@ -168,3 +168,12 @@ class Settings:
             return
         self._dirty = True
         self._settings['NIGHT_LEVEL'] = val
+
+    @property
+    def ntp_enabled(self):
+        return self._settings['NTP_ENABLED']
+
+    @ntp_enabled.setter
+    def ntp_enabled(self, val):
+        self._dirty = True
+        self._settings['NTP_ENABLED'] = val

@@ -3,10 +3,9 @@ import busio
 import board
 import adafruit_ds3231
 
-""" Used for typing """
-from time import struct_time
-
 class DateTimeProcessing:
+
+
     def __init__(self, settings, network) -> None:
         self.DAYS_OF_WEEK = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday" )
         self.MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
@@ -14,6 +13,7 @@ class DateTimeProcessing:
         self._DAYS_BEFORE_MONTH = (None, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)
         self.network = network
         self._settings = settings
+        # NOTE: these are only used during the settings display (changing time / date)
         self.time = [0, 0, 0]
         self.date = [0, 0, 0]
         i2c = busio.I2C(board.GP7,board.GP6)  # uses board.SCL and board.SDA
@@ -21,6 +21,10 @@ class DateTimeProcessing:
         self.is_display_on = True
 
     def update_from_ntp(self):
+        if not self._settings.ntp_enabled:
+            print('NTP has been disabled')
+            return 
+        
         try:            
             new_time = self.network.get_time()            
 
@@ -33,14 +37,14 @@ class DateTimeProcessing:
             self.rtc.datetime = new_time
             print('updated RTC datetime')
         except Exception as e:
-            print('failed to update from NTP', e)
+            print('Failed to update from NTP', e)
 
 
-    def get_interval(self) -> int:
+    def get_interval(self):
         return self.network.get_interval()
 
 
-    def is_12hr(self) -> bool:
+    def is_12hr(self):
         return self._settings.twelve_hr
 
 
@@ -51,14 +55,14 @@ class DateTimeProcessing:
             self.time_format = 0
 
 
-    def get_date(self) -> str:
+    def get_date(self):
         dt = self.rtc.datetime
         # DOW MON DD, YYYY
         return f'{self.get_dow(dt)} {self.get_month(dt)} {dt.tm_mday:02d}, {dt.tm_year:02d}'# "%04d" % dt.tm_year + '-' + "%02d" % dt.tm_mon + '-' + "%02d" % dt.tm_mday
         #return "%04d" % dt.tm_year + '-' + "%02d" % dt.tm_mon + '-' + "%02d" % dt.tm_mday
 
 
-    def get_time(self) -> str:
+    def get_time(self):
         dt = self.rtc.datetime
         time = ''
         self._process_autodim(dt)
@@ -80,8 +84,6 @@ class DateTimeProcessing:
 
         return time
 
-    def get_datetime(self) -> struct_time:
-        return self.rtc.datetime
 
     def _process_autodim(self, datetime):
         '''
@@ -93,7 +95,7 @@ class DateTimeProcessing:
             self.is_display_on = True
 
 
-    def get_setting_time(self, update) -> str:
+    def get_setting_time(self, update):
         # update the time array to current time
         if update:
             dt = self.rtc.datetime
@@ -104,7 +106,7 @@ class DateTimeProcessing:
         return "%02d" % self.time[0] + ':' + "%02d" % self.time[1] + ':' + "%02d" % self.time[2]
 
 
-    def get_setting_date(self, update) -> str:
+    def get_setting_date(self, update):
         if update:
             dt = self.rtc.datetime
             self.date[0] = dt.tm_year
@@ -113,12 +115,12 @@ class DateTimeProcessing:
         return "%02d" % self.date[0] + '-' + "%02d" % self.date[1] + '-' + "%02d" % self.date[2]
 
 
-    def get_dow(self, datetime) -> str:
+    def get_dow(self, datetime):
         if datetime is None:
             datetime = self.rtc.datetime
         return self.DAYS_OF_WEEK[int(datetime.tm_wday)]
 
-    def get_month(self, datetime) -> str:
+    def get_month(self, datetime):
         if datetime is None:
             datetime = self.rtc.datetime
         return self.MONTHS[int(datetime.tm_mon) - 1]
@@ -133,6 +135,13 @@ class DateTimeProcessing:
             if self.time[0] < 0:
                 self.time[0] = 23
 
+
+    def get_hour(self):
+        return self.rtc.datetime.tm_hour
+
+
+    def get_minute(self): 
+        return self.rtc.datetime.tm_min
 
 
     def set_min(self, increment):

@@ -43,7 +43,7 @@ class TempestWeather():
             else:
                 self._missed_weather += 1
             
-            weather_display.show()
+            weather_display.show() #TODO: is this required?
             return
         else: 
             self._missed_weather = 0

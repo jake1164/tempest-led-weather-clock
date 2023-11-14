@@ -9,10 +9,8 @@ import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
 
-# Imported from lib
-#import circuitpython_schedule as schedule
-
 # project classes 
+from splash_display import SplashDisplay
 from settings_display import SETTINGS, SettingsDisplay
 from date_utils import DateTimeProcessing
 from key_processing import KeyProcessing
@@ -22,6 +20,7 @@ from weather.weather_factory import Factory
 from weather.weather_display import WeatherDisplay
 from persistent_settings import Settings
 from buzzer import Buzzer
+from version import Version
 
 gc.collect()
 icon_spritesheet = "/images/weather-icons.bmp"
@@ -35,6 +34,11 @@ serpentine_value = True
 
 width_value = base_width * chain_across
 height_value = base_height * tile_down
+
+version = Version()
+# read the version if it exists.
+print(f'Version: {version.get_version_string()}')
+icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
 
 # release displays  before creating a new one.
 displayio.release_displays()
@@ -58,18 +62,7 @@ matrix = RGBMatrix(
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 
 #display a splash screen to hide the random text that appears.
-icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
-splash = displayio.Group()
-splash.x = 24
-splash.y = 8
-bg = displayio.TileGrid(
-    icons,
-    pixel_shader=getattr(icons, 'pixel_shader', displayio.ColorConverter()),
-    tile_width=16,
-    tile_height=16
-)
-bg[0] = 0 + 1
-splash.append(bg)
+splash = SplashDisplay(icons, version)
 display.show(splash)
 
 try:
@@ -105,18 +98,16 @@ except Exception as e:
 # TODO: Make async
 datetime.update_from_ntp()
 last_ntp = time.time()
-# Update the RTC every 60 min (settable via settings.toml file
-#schedule.every(datetime.get_interval()).minutes.do(datetime.update_from_ntp)
 
-#update weather every min
-#if weather is not None:
-#    schedule.every(weather.get_update_interval()).seconds.do(weather.show_weather)
+# Get the initial display and set it.
 weather.show_weather()
 last_weather = time.time()
 settings_visited = False
 
 # remove splash from memory
-del bg, splash
+#del bg, splash
+del splash
+gc.collect()
 
 print('free memory', gc.mem_free())
 while True:
