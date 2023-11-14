@@ -9,10 +9,8 @@ import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
 
-# Imported from lib
-#import circuitpython_schedule as schedule
-
 # project classes 
+from splash_display import SplashDisplay
 from settings_display import SETTINGS, SettingsDisplay
 from date_utils import DateTimeProcessing
 from key_processing import KeyProcessing
@@ -22,6 +20,7 @@ from weather.weather_factory import Factory
 from weather.weather_display import WeatherDisplay
 from persistent_settings import Settings
 from buzzer import Buzzer
+from version import Version
 
 gc.collect()
 icon_spritesheet = "/images/weather-icons.bmp"
@@ -35,6 +34,11 @@ serpentine_value = True
 
 width_value = base_width * chain_across
 height_value = base_height * tile_down
+
+version = Version()
+# read the version if it exists.
+print(f'Version: {version.get_version_string()}')
+icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
 
 # release displays  before creating a new one.
 displayio.release_displays()
@@ -58,18 +62,7 @@ matrix = RGBMatrix(
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 
 #display a splash screen to hide the random text that appears.
-icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
-splash = displayio.Group()
-splash.x = 24
-splash.y = 8
-bg = displayio.TileGrid(
-    icons,
-    pixel_shader=getattr(icons, 'pixel_shader', displayio.ColorConverter()),
-    tile_width=16,
-    tile_height=16
-)
-bg[0] = 0 + 1
-splash.append(bg)
+splash = SplashDisplay(icons, version)
 display.show(splash)
 
 try:
@@ -105,58 +98,55 @@ except Exception as e:
 # TODO: Make async
 datetime.update_from_ntp()
 last_ntp = time.time()
-# Update the RTC every 60 min (settable via settings.toml file
-#schedule.every(datetime.get_interval()).minutes.do(datetime.update_from_ntp)
 
-#update weather every min
-#if weather is not None:
-#    schedule.every(weather.get_update_interval()).seconds.do(weather.show_weather)
+# Get the initial display and set it.
 weather.show_weather()
 last_weather = time.time()
 settings_visited = False
 
 # remove splash from memory
-del bg, splash
+#del bg, splash
+del splash
+gc.collect()
 
 print('free memory', gc.mem_free())
 while True:
     # Always process keys first
-    key_value = key_input.get_key_value()    
-    key_input.key_processing(key_value)  
-    
-    if key_value is None and key_input.page_id == 0: # IF normal display
-        if settings_visited:                                    
+    key_value = key_input.get_key_value()
+    key_input.key_processing(key_value)
+
+    if key_value is None and key_input.page_id == 0: # normal display
+        if settings_visited:
             settings_visited = False
             del settings_display
             while len(weather_display.scroll_queue) > 0:
                 weather_display.scroll_queue.popleft()
+            weather.show_weather()
             gc.collect()
-
+            
         # current_time in seconds > start_time in seconds + interval in seconds.
-        if time.time() > last_ntp + datetime.get_interval():            
+        if time.time() > last_ntp + datetime.get_interval():
             datetime.update_from_ntp()
             last_ntp = time.time()
         if weather.show_datetime(): # returns true if autodim enabled and outside of time
             darkmode = light_sensor.get_display_mode()
             weather_display.set_display_mode(darkmode)
-            #This is a hack to try to stop buzzer from buzzing while doing something that might hang. 
+            #This is a hack to try to stop buzzer from buzzing while doing something that might hang.
             if not buzzer.is_beeping():
-                if time.time() > last_weather + weather.get_update_interval():
+                if weather.weather_complete() and time.time() > last_weather + weather.get_update_interval():
                     weather.show_weather()
                     last_weather = time.time()
-                #schedule.run_pending()
-                #weather.show_weather()                
-                weather.scroll_label(key_input) 
+                weather_display.scroll_label(key_input)
 
 
-    elif key_input.page_id == 1: # Process settings pages        
+    elif key_input.page_id == 1: # Process settings pages
         weather.display_off()
         settings_display = SettingsDisplay(display, datetime)
         settings_display.showSetListPage(key_input.select_setting_options)
         settings_visited = True
     elif key_input.page_id == 2: # Process settings pages
         if SETTINGS[key_input.select_setting_options]["type"] == 'set_time':
-            settings_display.timeSettingPage(key_input.time_setting_label)            
+            settings_display.timeSettingPage(key_input.time_setting_label)
         elif SETTINGS[key_input.select_setting_options]["type"] == 'set_date':
             settings_display.dateSettingPage(key_input.time_setting_label)
         elif SETTINGS[key_input.select_setting_options]["type"] == 'bool':
@@ -168,6 +158,6 @@ while True:
             settings_display.number_display_page(settings)
         elif SETTINGS[key_input.select_setting_options]["type"] == 'time':
             settings_display.time_page(
-                SETTINGS[key_input.select_setting_options]["text"], 
+                SETTINGS[key_input.select_setting_options]["text"],
                 settings.on_time if key_input.select_setting_options == 8 else settings.off_time
             )

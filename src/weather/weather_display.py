@@ -3,6 +3,7 @@ import gc
 import os
 import displayio
 from collections import deque
+#from adafruit_display_text.label import Label
 from adafruit_display_text import bitmap_label
 from adafruit_bitmap_font import bitmap_font
 
@@ -11,7 +12,7 @@ COLOR_TEMP = 0x00DD00    # Green
 COLOR_TIME = 0x00DDDD    # Light Blue
 COLOR_DARK = 0x800000    # Dark Red
 SCROLL_DELAY = 0.06       # How fast does text scroll
-SCROLL_END_WAIT = 0.2    # How long do you display the label after the scrolling ends.
+SCROLL_END_WAIT = 0.75    # How long do you display the label after the scrolling ends.
 
 class WeatherDisplay(displayio.Group):
     def __init__(self, display, icons) -> None:
@@ -19,7 +20,11 @@ class WeatherDisplay(displayio.Group):
         self._display = display
         small_font = "/fonts/helvB12.bdf"
         glyphs = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-,.: "
-        self._current_label = None #index of current label
+        self._pallete = displayio.Palette(2)
+        self._pallete[0] = 0x000000
+        self._pallete[1] = COLOR_DARK
+
+        self._random_pixel = displayio.Bitmap(64, 32, 2)
 
         self.units = os.getenv('UNITS')
         
@@ -31,14 +36,17 @@ class WeatherDisplay(displayio.Group):
 
         icon_width = 16
         icon_height = 16
-        
+
         self._current_icon = None
-        self.scroll_queue = deque((), 5) # TODO: this size needs to come from openweather.. 
         
+        self.scroll_queue = deque((), 5) # TODO: this size needs to come from openweather.. 
+
         self.root_group = displayio.Group()      
         self._text_group = displayio.Group()
         self._icon_group = displayio.Group()
         self._scrolling_group = displayio.Group()        
+        self._random_pixel_group = displayio.Group()
+        self._random_pixel_group.append(displayio.TileGrid(self._random_pixel, pixel_shader=self._pallete))
 
         self._scrolling_group.y = 25
         # _scrolling_group.x is set during scrolling
@@ -93,18 +101,18 @@ class WeatherDisplay(displayio.Group):
         self.temperature.text = self.get_temperature(temp)
 
 
-    def hide_temperature(self):
-        self.temperature.text = ""
-        #if self._icon_group:
-        #    self._icon_group.pop()
-
-
     def get_temperature(self, temp):        
         if self.units == 'metric':
             unit = "%d°C"
         else:
-            unit = "%d°F"                    
+            unit = "%d°F"                  
         return unit % temp
+
+
+    def hide_temperature(self):
+        self.temperature.text = ""
+        if self._icon_group:
+            self._icon_group.pop()        
 
 
     def set_icon(self, name):
@@ -133,7 +141,7 @@ class WeatherDisplay(displayio.Group):
     def set_time(self, time_string) -> bool:
         if self.time.text != time_string:
             self.time.text = time_string
-            return True        
+            return True
         return False
 
     
@@ -149,18 +157,18 @@ class WeatherDisplay(displayio.Group):
         self.scroll_queue.append("Feels Like " + self.get_temperature(feels_like))
 
 
-    def set_date(self, date_text):
-        self.scroll_queue.append(date_text)
+    def set_date(self, date_text):        
+        self.scroll_queue.append(date_text)       
 
 
-    def set_wind(self, wind):
+    def set_wind(self, wind):       
         if self.units == "imperial":
-            self.scroll_queue.append(f'wind {wind} mph')
+            self.scroll_queue.append(f'wind {wind:.1f} mph')
         else:
-            self.scroll_queue.append(f'wind {wind} m/s')
+            self.scroll_queue.append(f'wind {wind:.1f} m/s')
 
 
-    def add_text_display(self, text):
+    def add_test_display(self, text):
         self.scroll_queue.append(text)
 
 
@@ -172,10 +180,10 @@ class WeatherDisplay(displayio.Group):
         # Button press leaves items in scroll group and mucks things up
         while len(self._scrolling_group) > 0:
             self._scrolling_group.pop()
-            
+
         if self.scroll_queue:
             scroll_text = self.scroll_queue.popleft()
-            scroll_label = bitmap_label.Label(self._small_font, color=COLOR_DARK if self._dark_mode else COLOR_SCROLL , text=scroll_text)
+            scroll_label = bitmap_label.Label(self._small_font, color=COLOR_DARK if self._dark_mode else COLOR_SCROLL , text=scroll_text)            
             text_length = scroll_label.bounding_box[2]
 
             self._scrolling_group.x = self._display.width
@@ -191,10 +199,23 @@ class WeatherDisplay(displayio.Group):
             self._scrolling_group.pop()
             del scroll_label
             gc.collect()
+            
 
     def show(self):
         self._display.show(self.root_group)
 
+
+    def hide_pixel(self, x, y):
+        self._random_pixel[x, y] = 0
+
+    
+    def show_pixel(self, x, y):
+        print('show pixel', x, y)
+        #TODO: only run this once.
+        self._display.show(self._random_pixel_group)
+        #TODO: This is what is changed:
+        self._random_pixel[x, y] = 1
+    
 
     @property
     def brightness(self):

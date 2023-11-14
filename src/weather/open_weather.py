@@ -2,25 +2,29 @@
 import os
 
 # NOTE: https seems to cause an issue but http works fine for this api
-GEO_URL = 'http://api.openweathermap.org/geo/1.0/zip?zip={},{}&appid={}'
-URL = 'http://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units={}&appid={}'
+GEO_URL = 'http{}://api.openweathermap.org/geo/1.0/zip?zip={},{}&appid={}'
+URL = 'http{}://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units={}&appid={}'
 
 
 class OpenWeather():
     def __init__(self, network, units) -> None:
         self._units = units
         self._network = network
+        #self._datetime = datetime
         token = os.getenv('OWM_API_TOKEN')
         zip = os.getenv('OWM_ZIP')
         country = os.getenv('OWM_COUNTRY')
+        https = 's' if os.getenv('OWM_USE_HTTPS') == 1 else ''
         # TODO: check parameters here and ensure geo works.
-        lat, lon = self._get_geo(zip, country, token)        
-        self._url = URL.format(lat, lon, self._units, token)      
+        lat, lon = self._get_geo(https, zip, country, token)        
+        self._url = URL.format(https, lat, lon, units, token)      
+        self._missed_weather = 0
+        self.pixel_x = 0
+        self.pixel_y = 0
 
-
-    def _get_geo(self, zip, country, token):
+    def _get_geo(self, https, zip, country, token):
         # TODO: Need some better error handling here
-        geo_url = GEO_URL.format(zip, country, token)
+        geo_url = GEO_URL.format(https, zip, country, token)
         geo = self._network.getJson(geo_url)
         if geo == None or geo == {}:
             raise Exception('Unable to get geo')

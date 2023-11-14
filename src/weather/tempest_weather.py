@@ -43,13 +43,13 @@ class TempestWeather():
             else:
                 self._missed_weather += 1
             
-            weather_display.show()
+            weather_display.show() #TODO: is this required?
             return
         else: 
             self._missed_weather = 0
 
 
-        try:                
+        try:
             if 'air_temperature' in weather['obs'][0].keys():
                 weather_display.set_temperature(self._convert_temperature(weather["obs"][0]["air_temperature"]))
 
@@ -61,7 +61,7 @@ class TempestWeather():
                 weather_display.set_wind(self._convert_windspeed(weather["obs"][0]["wind_avg"]))
         except Exception as ex:
             print('Unable to display weather', ex)
-        finally:        
+        finally:
             weather_display.show()
 
 
