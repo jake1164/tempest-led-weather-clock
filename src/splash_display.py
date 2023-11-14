@@ -7,7 +7,7 @@ class SplashDisplay(displayio.Group):
     def __init__(self, icons, version) -> None:
         super().__init__()
         ICON_X = 24
-        ICON_Y = 1       
+        ICON_Y = 3
         DISPLAY_WIDTH = 64
         DISPLAY_HEIGHT = 32
 
@@ -19,6 +19,8 @@ class SplashDisplay(displayio.Group):
             x=ICON_X,
             y=ICON_Y
         )
+        # TODO: Pass in the icon position to display
+        bg[0] = 0 + 1
         version_label = bitmap_label.Label(terminalio.FONT, color=0x00DD00)
         version_label.text = f'{version.get_version_string()}'
         version_label.anchor_point = (1.0, 1.0)
