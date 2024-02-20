@@ -187,7 +187,7 @@ class WeatherDisplay(displayio.Group):
             text_length = scroll_label.bounding_box[2]
 
             self._scrolling_group.x = self._display.width
-            self._scrolling_group.append(scroll_label)            
+            self._scrolling_group.append(scroll_label)
 
             # Start scrolling label
             for _ in range(text_length + 1):
@@ -202,25 +202,22 @@ class WeatherDisplay(displayio.Group):
             
 
     def show(self):
-        self._display.show(self.root_group)
+        self._display.root_group = self.root_group
 
 
     def hide_pixel(self, x, y):
         self._random_pixel[x, y] = 0
 
-    
+
     def show_pixel(self, x, y):
-        print('show pixel', x, y)
-        #TODO: only run this once.
-        self._display.show(self._random_pixel_group)
-        #TODO: This is what is changed:
+        self._display.root_group = self._random_pixel_group
         self._random_pixel[x, y] = 1
-    
+
 
     @property
     def brightness(self):
         return self._display.brightness
-    
+
 
     @brightness.setter
     def brightness(self, val):
