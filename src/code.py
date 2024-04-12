@@ -1,28 +1,16 @@
 # UPDATE the settings.toml file before starting!
 
 # Following are imported from circuitpython 8.x
-import os
 import gc
+gc.collect()
+print('free memory', gc.mem_free(), gc.mem_alloc())
+import os
 import board
 import displayio
 import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
 
-# project classes 
-from splash_display import SplashDisplay
-from settings_display import SETTINGS, SettingsDisplay
-from date_utils import DateTimeProcessing
-from key_processing import KeyProcessing
-from light_sensor import LightSensor
-from network import WifiNetwork
-from weather.weather_factory import Factory
-from weather.weather_display import WeatherDisplay
-from persistent_settings import Settings
-from buzzer import Buzzer
-from version import Version
-
-gc.collect()
 icon_spritesheet = "/images/weather-icons.bmp"
 time_format_flag = 0 # 12 or 24 (0 or 1) hour display.
 bit_depth_value = 1
@@ -34,11 +22,10 @@ serpentine_value = True
 
 width_value = base_width * chain_across
 height_value = base_height * tile_down
-
+from version import Version
 version = Version()
 # read the version if it exists.
 print(f'Version: {version.get_version_string()}')
-icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
 
 # release displays  before creating a new one.
 displayio.release_displays()
@@ -58,12 +45,28 @@ matrix = RGBMatrix(
     doublebuffer=True,
 )
 
+# project classes 
+from splash_display import SplashDisplay
 # Associate the RGB matrix with a Display so that we can use displayio features
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 
 #display a splash screen to hide the random text that appears.
+icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
 splash = SplashDisplay(icons, version)
 display.root_group = splash
+print('free memory', gc.mem_free(), gc.mem_alloc())
+
+from settings_display import SETTINGS, SettingsDisplay
+from date_utils import DateTimeProcessing
+from key_processing import KeyProcessing
+from light_sensor import LightSensor
+from network import WifiNetwork
+from weather.weather_factory import Factory
+from weather.weather_display import WeatherDisplay
+from persistent_settings import Settings
+from buzzer import Buzzer
+
+
 
 try:
     network = WifiNetwork() # TODO: catch exception and do something meaninful with it.
@@ -106,7 +109,7 @@ settings_visited = False
 
 # remove splash from memory
 #del bg, splash
-del splash
+del version, splash
 gc.collect()
 
 print('free memory', gc.mem_free())

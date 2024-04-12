@@ -53,8 +53,8 @@ Settings:
 ## Board
 This project requires the use of a [Raspberry Pico W](https://www.raspberrypi.com/products/raspberry-pi-pico/) to use the WIFI for getting information for displaying on the screen such as updated time, and eventually local weather. (api to be defined soon)
 
-## Circuitpython 8.0.0
-This project requires that you use [circuitpython 8.x.x](https://circuitpython.org/board/raspberry_pi_pico_w/). 
+## Circuitpython 9.0.0
+This project requires that you use [circuitpython 9.x.x](https://circuitpython.org/board/raspberry_pi_pico_w/). 
 
 ## Libraries
 Circuit libraries are included in the ./lib/src folder, just copy the ./src folder to the Pico. Most of the libraries are located on the 
@@ -91,4 +91,4 @@ to your .vscode.json config file.
 ```
 
 # KNOWN ISSUES
-Does not work with CircuitPython 8.1.0 (or 8.2.0_beta)
+Memory is on the ragged edge of the Pico W limits and as such many api requests fail do to memory allocation issues.
