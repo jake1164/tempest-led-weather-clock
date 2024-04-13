@@ -4,24 +4,36 @@
 import gc
 gc.collect()
 print('free memory', gc.mem_free(), gc.mem_alloc())
+
 import os
-import board
 import displayio
 import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
+import board
+print(dir(board))
+
+if(os.getenv('BOARD') == 'PICO-W'):
+    from boards.pico_w import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+elif(os.getenv('BOARD') == 'S2-PICO'):
+    from boards.s2_pico import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+elif(os.getenv('BOARD') == 'S3-PICO'):
+    from boards.s3_pico import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+else:
+    raise Exception("No board defined in settings.toml file.")
 
 icon_spritesheet = "/images/weather-icons.bmp"
 time_format_flag = 0 # 12 or 24 (0 or 1) hour display.
-bit_depth_value = 1
-base_width = 64
-base_height = 32
-chain_across = 1
-tile_down = 1
-serpentine_value = True
 
-width_value = base_width * chain_across
-height_value = base_height * tile_down
+BASE_WIDTH = 64
+BASE_HEIGHT = 32
+
+## Set this to be either 32 or 64 based on the size matrix you have.
+BIT_DEPTH_VALUE = 1
+CHAIN_ACROSS = 1
+TILE_DOWN = 1
+SERPENTINE_VALUE = True
+
 from version import Version
 version = Version()
 # read the version if it exists.
@@ -30,6 +42,9 @@ print(f'Version: {version.get_version_string()}')
 # release displays  before creating a new one.
 displayio.release_displays()
 
+calcuated_width = BASE_WIDTH * CHAIN_ACROSS
+calculated_height = BASE_HEIGHT * TILE_DOWN
+
 # This next call creates the RGB Matrix object itself. It has the given width
 # and height. bit_depth can range from 1 to 6; higher numbers allow more color
 # shades to be displayed, but increase memory usage and slow down your Python
@@ -37,13 +52,19 @@ displayio.release_displays()
 # Otherwise, try 3, 4 and 5 to see which effect you like best.
 
 matrix = RGBMatrix(
-    width=width_value,height=height_value,bit_depth=bit_depth_value,
-    rgb_pins=[board.GP2, board.GP3, board.GP4, board.GP5, board.GP8, board.GP9],
-    addr_pins=[board.GP10, board.GP16, board.GP18, board.GP20],
-    clock_pin=board.GP11,latch_pin=board.GP12,output_enable_pin=board.GP13,
-    tile=tile_down,serpentine=serpentine_value,
+    width = calcuated_width, 
+    height=calculated_height, 
+    bit_depth=BIT_DEPTH_VALUE,
+    rgb_pins=RGB_PINS,
+    addr_pins=ADDR_PINS,
+    clock_pin=CLOCK_PIN,
+    latch_pin=LATCH_PIN,
+    output_enable_pin=OUTPUT_ENABLE_PIN,
+    tile=TILE_DOWN,
+    serpentine=SERPENTINE_VALUE,
     doublebuffer=True,
 )
+del calcuated_width, calculated_height
 
 # project classes 
 from splash_display import SplashDisplay

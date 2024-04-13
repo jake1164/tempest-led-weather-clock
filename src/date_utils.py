@@ -1,11 +1,18 @@
+import os
 import time
 import busio
-import board
 import adafruit_ds3231
 
+if(os.getenv('BOARD') == 'PICO-W'):
+    from boards.pico_w import SLC_PIN, SDA_PIN
+elif(os.getenv('BOARD') == 'S2-PICO'):
+    from boards.s2_pico import SLC_PIN, SDA_PIN
+elif(os.getenv('BOARD') == 'S3-PICO'):
+    from boards.s3_pico import SLC_PIN, SDA_PIN
+else:
+    raise Exception("No board defined in settings.toml file.")
+
 class DateTimeProcessing:
-
-
     def __init__(self, settings, network) -> None:
         self.DAYS_OF_WEEK = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday" )
         self.MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
@@ -16,7 +23,7 @@ class DateTimeProcessing:
         # NOTE: these are only used during the settings display (changing time / date)
         self.time = [0, 0, 0]
         self.date = [0, 0, 0]
-        i2c = busio.I2C(board.GP7,board.GP6)  # uses board.SCL and board.SDA
+        i2c = busio.I2C(SLC_PIN, SDA_PIN)  # uses board.SCL and board.SDA
         self.rtc = adafruit_ds3231.DS3231(i2c)
         self.is_display_on = True
 

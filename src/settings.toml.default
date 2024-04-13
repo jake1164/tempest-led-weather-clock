@@ -1,3 +1,5 @@
+# Valid boards are PICO_W, S2-PICO, S3-PICO
+BOARD="S2-PICO"
 WIFI_SSID="yourWIFI"
 WIFI_PASSWORD="YourPassword"
 NTP_HOST="0.adafruit.pool.ntp.org|0.us.pool.ntp.org"
