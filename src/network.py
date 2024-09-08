@@ -27,7 +27,8 @@ class WifiNetwork:
         
         self._last_ntp_sync = None
         self.connect()
-
+        self._pool = socketpool.SocketPool(wifi.radio)
+        self._requests =adafruit_requests.Session(self._pool, ssl.create_default_context())
 
     def connect(self) -> bool:
         """ If not connected connect to the network."""
@@ -48,37 +49,32 @@ class WifiNetwork:
 
 
     def get_time(self):
-        pool = socketpool.SocketPool(wifi.radio)
         ntp_try = 0
         while ntp_try < len(self.NTP_HOST):
             try:
-                ntp = adafruit_ntp.NTP(pool, tz_offset=self.TZ, server=self.NTP_HOST[ntp_try])
+                ntp = adafruit_ntp.NTP(self._pool, tz_offset=self.TZ, server=self.NTP_HOST[ntp_try])
                 self._last_ntp_sync = ntp.datetime
-                return ntp.datetime
+                datetime = ntp.datetime
+                del ntp
+                return datetime
             except Exception as ex:
                 print(f'Unable to connect to NTP Server {self.NTP_HOST[ntp_try]} with exception:', ex)
                 ntp_try += 1
         raise Exception("Unable to contact NTP servers")
-                                                
+
 
     def getJson(self, url):
         try:
-            pool = socketpool.SocketPool(wifi.radio)
-            context = ssl.create_default_context()
-            #requests = adafruit_requests.Session(pool, context)
-            requests = adafruit_requests.Session(pool, ssl.create_default_context())
             print(f'getting url: {url}')
             gc.collect()
             print('free memory', gc.mem_free())
-
-            #response = requests.get(url, stream=True) 
-            response = requests.get(url) 
+            response = self._requests.get(url) 
             print('free memory after', gc.mem_free())
             return response.json()
         except Exception as e:
             print('response.json Exception:', e)
             gc.collect()
-        return {}        
+        return {}
 
 
     def get_interval(self):
