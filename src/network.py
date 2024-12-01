@@ -6,6 +6,7 @@ import wifi
 import socketpool
 import adafruit_ntp
 import adafruit_requests
+import adafruit_connection_manager
 
 class WifiNetwork:
     def __init__(self) -> None:
@@ -28,7 +29,13 @@ class WifiNetwork:
         self._last_ntp_sync = None
         self.connect()
         self._pool = socketpool.SocketPool(wifi.radio)
-        self._requests =adafruit_requests.Session(self._pool, ssl.create_default_context())
+        #self._requests =adafruit_requests.Session(self._pool, ssl.create_default_context())
+        ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
+        #ssl_context.load_verify_locations(cadata=SWD_WEATHERFLOW_CERT)
+        #ssl_context = ssl.create_default_context()
+        self._pool = adafruit_connection_manager.get_radio_socketpool(wifi.radio)
+        self._requests = adafruit_requests.Session(self._pool, ssl_context)
+        self._connection_manager = adafruit_connection_manager.get_connection_manager(self._pool)
 
     def connect(self) -> bool:
         """ If not connected connect to the network."""
@@ -67,15 +74,16 @@ class WifiNetwork:
         try:
             print(f'getting url: {url}')
             gc.collect()
-            print('free memory', gc.mem_free())
-            response = self._requests.get(url) 
-            print('free memory after', gc.mem_free())
-            return response.json()
+            #print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
+
+            with self._requests.get(url) as response:
+                #print(f'free memory after: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
+                return response.json()
         except Exception as e:
             print('response.json Exception:', e)
+            #print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
             gc.collect()
         return {}
-
 
     def get_interval(self):
         return int(self.INTERVAL)
