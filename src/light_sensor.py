@@ -1,21 +1,23 @@
 import os
+import board
 from analogio import AnalogIn
 
-if(os.getenv('BOARD') == 'PICO-W'):
-    from boards.pico_w import LS_PIN
-elif(os.getenv('BOARD') == 'S2-PICO'):
-    from boards.s2_pico import LS_PIN
-elif(os.getenv('BOARD') == 'S3-PICO'):
-    from boards.s3_pico import LS_PIN
-else:
-    raise Exception("No board defined in settings.toml file.")
+#if(os.getenv('BOARD') == 'PICO-W'):
+#    from boards.pico_w import LS_PIN
+#elif(os.getenv('BOARD') == 'S2-PICO'):
+#    from boards.s2_pico import LS_PIN
+#elif(os.getenv('BOARD') == 'S3-PICO'):
+#    from boards.s3_pico import LS_PIN
+#else:
+#    raise Exception("No board defined in settings.toml file.")
 
 
 class LightSensor:
     def __init__(self, settings) -> None:
         self.LIGHT_THRESHOLD = 2800 # Lower the value the brighter the light.
         self._settings = settings
-        self._analog_in = AnalogIn(LS_PIN)
+        #self._analog_in = AnalogIn(LS_PIN)
+        self._analog_in = AnalogIn(board.GP26)
         self.dark_mode = False 
 
 

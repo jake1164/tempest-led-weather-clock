@@ -11,16 +11,16 @@ import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
 import board
-print(dir(board))
+#print(dir(board))
 
-if(os.getenv('BOARD') == 'PICO-W'):
-    from boards.pico_w import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
-elif(os.getenv('BOARD') == 'S2-PICO'):
-    from boards.s2_pico import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
-elif(os.getenv('BOARD') == 'S3-PICO'):
-    from boards.s3_pico import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
-else:
-    raise Exception("No board defined in settings.toml file.")
+#if(os.getenv('BOARD') == 'PICO-W'):
+#    from boards.pico_w import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+#elif(os.getenv('BOARD') == 'S2-PICO'):
+#    from boards.s2_pico import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+#elif(os.getenv('BOARD') == 'S3-PICO'):
+#    from boards.s3_pico import RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+#else:
+#    raise Exception("No board defined in settings.toml file.")
 
 icon_spritesheet = "/images/weather-icons.bmp"
 time_format_flag = 0 # 12 or 24 (0 or 1) hour display.
@@ -55,11 +55,14 @@ matrix = RGBMatrix(
     width = calcuated_width, 
     height=calculated_height, 
     bit_depth=BIT_DEPTH_VALUE,
-    rgb_pins=RGB_PINS,
-    addr_pins=ADDR_PINS,
-    clock_pin=CLOCK_PIN,
-    latch_pin=LATCH_PIN,
-    output_enable_pin=OUTPUT_ENABLE_PIN,
+    #rgb_pins=RGB_PINS,
+    #addr_pins=ADDR_PINS,
+    #clock_pin=CLOCK_PIN,
+    #latch_pin=LATCH_PIN,
+    #output_enable_pin=OUTPUT_ENABLE_PIN,
+    rgb_pins=[board.GP2, board.GP3, board.GP4, board.GP5, board.GP8, board.GP9],
+    addr_pins=[board.GP10, board.GP16, board.GP18, board.GP20],
+    clock_pin=board.GP11,latch_pin=board.GP12,output_enable_pin=board.GP13,
     tile=TILE_DOWN,
     serpentine=SERPENTINE_VALUE,
     doublebuffer=True,
