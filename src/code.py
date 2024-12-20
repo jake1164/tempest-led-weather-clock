@@ -23,6 +23,7 @@ import board
 #    raise Exception("No board defined in settings.toml file.")
 
 icon_spritesheet = "/images/weather-icons.bmp"
+splash_img = "/images/ws.bmp"
 time_format_flag = 0 # 12 or 24 (0 or 1) hour display.
 
 BASE_WIDTH = 64
@@ -75,8 +76,8 @@ from splash_display import SplashDisplay
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 
 #display a splash screen to hide the random text that appears.
-icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
-splash = SplashDisplay(icons, version)
+splash_icon = displayio.OnDiskBitmap(open(splash_img, "rb"))
+splash = SplashDisplay(splash_icon, version)
 display.root_group = splash
 print('free memory', gc.mem_free(), gc.mem_alloc())
 
@@ -98,6 +99,7 @@ except Exception as e:
     print('Network exception?', e)
 
 # TODO: Display wifi config icon 
+icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
 
 settings = Settings()
 buzzer = Buzzer(settings)
