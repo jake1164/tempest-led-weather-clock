@@ -20,8 +20,7 @@ jobs:
     - name: Run MPY Action
       uses: jake1164/build-mpy@fetch-submodules-fix
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        circuitpy-tag: "9.1.0"
+        github-token: ${{ secrets.GITHUB_TOKEN }}        
         mpy-directory: "src"
         mpy-manifest-file: "mpy-manifest.txt"
         mpy-manifest-type: "exclude"
