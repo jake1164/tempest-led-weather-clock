@@ -4,14 +4,7 @@ import time
 import busio
 import adafruit_ds3231
 
-#if(os.getenv('BOARD') == 'PICO-W'):
-#    from boards.pico_w import SLC_PIN, SDA_PIN
-#elif(os.getenv('BOARD') == 'S2-PICO'):
-#    from boards.s2_pico import SLC_PIN, SDA_PIN
-#elif(os.getenv('BOARD') == 'S3-PICO'):
-#    from boards.s3_pico import SLC_PIN, SDA_PIN
-#else:
-#    raise Exception("No board defined in settings.toml file.")
+SLC_PIN, SDA_PIN = board.GP7, board.GP6
 
 class DateTimeProcessing:
     def __init__(self, settings, network) -> None:
@@ -24,8 +17,7 @@ class DateTimeProcessing:
         # NOTE: these are only used during the settings display (changing time / date)
         self.time = [0, 0, 0]
         self.date = [0, 0, 0]
-        #i2c = busio.I2C(SLC_PIN, SDA_PIN)  # uses board.SCL and board.SD
-        i2c = busio.I2C(board.GP7,board.GP6)  # uses board.SCL and board.SDA
+        i2c = busio.I2C(SLC_PIN, SDA_PIN)  # uses board.SCL and board.SD
 
         self.rtc = adafruit_ds3231.DS3231(i2c)
         self.is_display_on = True
