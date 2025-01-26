@@ -3,14 +3,7 @@ import board
 import digitalio
 from settings_display import SETTINGS
 
-#if(os.getenv('BOARD') == 'PICO-W'):
-#    from boards.pico_w import KEY_0, KEY_1, KEY_2
-#elif(os.getenv('BOARD') == 'S2-PICO'):
-#    from boards.s2_pico import KEY_0, KEY_1, KEY_2
-#elif(os.getenv('BOARD') == 'S3-PICO'):
-#    from boards.s3_pico import KEY_0, KEY_1, KEY_2
-#else:
-#    raise Exception("No board defined in settings.toml file.")
+KEY_0, KEY_1, KEY_2 = board.GP15, board.GP19, board.GP21
 
 class KeyProcessing:
     """ Key processing is all handled with the KeyProcessing class
@@ -18,8 +11,7 @@ class KeyProcessing:
     def __init__(self, settings, date_processing, buzzer) -> None:
         """ Initiates the keys used by the board.
         """
-        #_KEYPRESS_PINS = [KEY_0, KEY_1, KEY_2]
-        _KEYPRESS_PINS = [board.GP15, board.GP19, board.GP21]
+        _KEYPRESS_PINS = [KEY_0, KEY_1, KEY_2]
 
         self._KEY_MENU = 0
         self._KEY_DOWN = 1
