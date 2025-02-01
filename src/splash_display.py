@@ -6,7 +6,7 @@ from adafruit_display_text import bitmap_label
 class SplashDisplay(displayio.Group):
     def __init__(self, icons, version) -> None:
         super().__init__()
-        ICON_X = 19
+        ICON_X = 2
         ICON_Y = 1
         DISPLAY_WIDTH = 64
         DISPLAY_HEIGHT = 32
