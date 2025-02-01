@@ -7,12 +7,14 @@ from collections import deque
 from adafruit_display_text import bitmap_label
 from adafruit_bitmap_font import bitmap_font
 
+
 COLOR_SCROLL = 0x0000DD  # Dark blue
 COLOR_TEMP = 0x00DD00    # Green
 COLOR_TIME = 0x00DDDD    # Light Blue
 COLOR_DARK = 0x800000    # Dark Red
 SCROLL_DELAY = 0.06       # How fast does text scroll
 SCROLL_END_WAIT = 0.75    # How long do you display the label after the scrolling ends.
+
 
 class WeatherDisplay(displayio.Group):
     def __init__(self, display, icons) -> None:
@@ -112,30 +114,60 @@ class WeatherDisplay(displayio.Group):
     def hide_temperature(self):
         self.temperature.text = ""
         if self._icon_group:
-            self._icon_group.pop()        
+            self._icon_group.pop()
 
 
-    def set_icon(self, name):
-        if self._current_icon == name:
+    def set_icon(self, icon: str) -> None:
+        if self._current_icon == icon:
             return
-        self._current_icon = name
 
-        icon_map = ("01", "02", "03", "04", "09", "10", "11", "13", "50")        
+        self._current_icon = icon
+
+        icon_map = {
+            'CLEAR_DAY': (0, 0),
+            'CLEAR_NIGHT': (0, 1),
+            'PARTLY_CLOUDY_DAY': (1, 0),
+            'PARTLY_CLOUDY_NIGHT': (1, 1),
+            'CLOUDY': (2, 0),
+            'OVERCAST': (3, 0),
+            'RAIN': (4, 0),
+            'SHOWER': (5, 0),
+            'THUNDERSTORM': (6, 0),
+            'SNOW': (7, 0),
+            'MIST': (8, 0),
+        }
+
         if self._icon_group:
             self._icon_group.pop()
-        if name is not None:
-            row = None
-            for index, icon in enumerate(icon_map):
-                if icon == name[0:2]:
-                    row = index
-                    break
-            column = 0
-            if name[2] == "n":
-                column = 1
+        if icon is not None:
+            row, column = icon_map.get(icon, (None, None))
             if row is not None:
                 self._icon_sprite[0] = (row * 2) + column
                 self._icon_group.append(self._icon_sprite)
         gc.collect()
+
+
+#        if self._current_icon == icon:
+#        return
+        
+#        self._current_icon = name
+#
+ #       icon_map = ("01", "02", "03", "04", "09", "10", "11", "13", "50")        
+##        if self._icon_group:
+#            self._icon_group.pop()
+#        if name is not None:
+#            row = None
+#            for index, icon in enumerate(icon_map):
+#                if icon == name[0:2]:
+#                    row = index
+#                    break
+#            column = 0
+#            if name[2] == "n":
+#                column = 1
+#            if row is not None:
+#                self._icon_sprite[0] = (row * 2) + column
+#                self._icon_group.append(self._icon_sprite)
+#        gc.collect()
 
 
     def set_time(self, time_string) -> bool:

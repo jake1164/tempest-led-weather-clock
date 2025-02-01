@@ -53,8 +53,8 @@ class OpenWeather():
             if weather == None or weather == {} or len(weather["weather"]) == 0:
                 return
             
-            display.set_icon(weather["weather"][0]["icon"])
-            display.set_description(weather["weather"][0]["description"])
+            #display.set_icon(weather["weather"][0]["icon"])
+            #display.set_description(weather["weather"][0]["description"])
         except Exception as ex:
             print('Unable to display secondary info', ex)
 
