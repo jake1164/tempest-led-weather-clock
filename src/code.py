@@ -77,7 +77,7 @@ from date_utils import DateTimeProcessing
 from key_processing import KeyProcessing
 from light_sensor import LightSensor
 from network import WifiNetwork
-from weather.weather_factory import Factory
+from weather.tempest_weather import TempestWeather
 from weather.weather_display import WeatherDisplay
 from persistent_settings import Settings
 from buzzer import Buzzer
@@ -102,13 +102,7 @@ key_input = KeyProcessing(settings, datetime, buzzer)
 weather_display = WeatherDisplay(display, icons)
 
 try:
-    if os.getenv('TEMPEST_ENABLE'):
-        weather = Factory('TEMPEST', weather_display, datetime, network)
-    elif os.getenv('OWM_ENABLE'):
-        weather = Factory('OWM', weather_display, datetime, network)
-    else:
-        print('Better handling required.')
-        raise Exception("No weather api's enabled")
+    weather = TempestWeather(weather_display, network, datetime, weather_display.units)
 except Exception as e:
     print("Unable to configure weather, exiting")
     exit()
