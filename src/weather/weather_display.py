@@ -28,7 +28,7 @@ class WeatherDisplay(displayio.Group):
 
         self._random_pixel = displayio.Bitmap(64, 32, 2)
 
-        self.units = os.getenv('UNITS')
+        #self.units = os.getenv('UNITS')
         
         self._small_font = bitmap_font.load_font(small_font)
         self._small_font.load_glyphs(glyphs)
@@ -99,15 +99,15 @@ class WeatherDisplay(displayio.Group):
                 self._icon_sprite.hidden = False
 
 
-    def set_temperature(self, temp):        
+    def set_temperature(self, temp):
         self.temperature.text = self.get_temperature(temp)
 
 
-    def get_temperature(self, temp):        
+    def get_temperature(self, temp):
         if self.units == 'metric':
             unit = "%d°C"
         else:
-            unit = "%d°F"                  
+            unit = "%d°F"
         return unit % temp
 
 
@@ -178,7 +178,7 @@ class WeatherDisplay(displayio.Group):
 
     
     def set_humidity(self, humidity):
-        self.scroll_queue.append(f'{humidity}% humidity')        
+        self.scroll_queue.append(f'{humidity}% humidity')
 
 
     def set_description(self, description_text):
@@ -189,11 +189,11 @@ class WeatherDisplay(displayio.Group):
         self.scroll_queue.append("Feels Like " + self.get_temperature(feels_like))
 
 
-    def set_date(self, date_text):        
-        self.scroll_queue.append(date_text)       
+    def set_date(self, date_text):
+        self.scroll_queue.append(date_text)
 
 
-    def set_wind(self, wind):       
+    def set_wind(self, wind):
         if self.units == "imperial":
             self.scroll_queue.append(f'wind {wind:.1f} mph')
         else:

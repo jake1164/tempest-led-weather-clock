@@ -105,7 +105,8 @@ try:
     weather = TempestWeather(weather_display, network, datetime, weather_display.units)
 except Exception as e:
     print("Unable to configure weather, exiting")
-    exit()
+    import sys
+    sys.exit()
 
 
 #Update the clock when first starting.

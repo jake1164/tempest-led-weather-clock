@@ -3,7 +3,7 @@
 import os
 
 STATIONS_URL = 'https://swd.weatherflow.com/swd/rest/stations?token={}'
-BETTER_URL = 'https://swd.weatherflow.com/swd/rest/better_forecast?station_id={}&units_temp=f&units_wind=mph&units_pressure=mmhg&units_precip=in&units_distance=mi&token={}'
+BETTER_URL = 'https://swd.weatherflow.com/swd/rest/better_forecast?station_id={}&units_temp={}&units_wind={}&units_pressure={}&units_precip={}&units_distance={}&token={}'
 
 # Redo actual icons to be more in line with whats expected.
 
@@ -36,10 +36,8 @@ class TempestWeather():
         self._weather_display = weather_display
         self._datetime = datetime
 
-        token = os.getenv('TEMPEST_API_TOKEN')
-        station = os.getenv('TEMPEST_STATION')
-        #self._url = URL.format(station, token)
-        self._url = BETTER_URL.format(station, token)
+        #self._url = BETTER_URL.format(station, token)
+        self._url= self._setup_url()
         self._missed_weather = 0
         self.skip = 0
         self.pixel_x = 0
@@ -52,6 +50,36 @@ class TempestWeather():
 
         return weather
 
+    def _setup_url(self) -> str:
+        token = os.getenv('TEMPEST_API_TOKEN')
+        station = os.getenv('TEMPEST_STATION')
+
+        if token is None or station is None:
+            raise Exception('Missing required environment variables for Tempest API')
+
+        default_units = os.getenv('UNITS')
+        if default_units is not None and default_units not in ['metric', 'imperial']:
+            raise Exception('Missing required environment variables for Tempest API')
+        
+        temp = self._get_units('UNITS_TEMP', ['f', 'c'], default_units)
+        wind = self._get_units('UNITS_WIND', ['mph', 'kph', 'kts', 'mps', 'bft', 'lfm'], default_units)
+        pressure = self._get_units('UNITS_PRESSURE', ['inhg', 'mb', 'mmhg', 'hpa'], default_units)
+        precip = self._get_units('UNITS_PRECIP', ['in', 'mm', 'cm'], default_units)
+        distance = self._get_units('UNITS_DISTANCE', ['mi', 'km'], default_units)
+
+        return BETTER_URL.format(station, temp, wind, pressure, precip,distance, token)
+
+
+    def _get_units(self, setting: str, valid_units, default_unit: str) -> str:
+        unit = os.getenv(setting)
+        if unit is None:
+            if default_unit == "metric":
+                unit = valid_units[1]
+            else:
+                unit = valid_units[0]
+        elif unit not in valid_units:
+            raise ValueError(f"Invalid units: {unit}. Must be one of {valid_units}")
+        return unit
 
     def get_update_interval(self):
         """ Returns the weather update interval in seconds """
