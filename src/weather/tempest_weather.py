@@ -30,8 +30,7 @@ ICON_MAP = {
 }
 
 class TempestWeather():
-    def __init__(self, weather_display, network, datetime, units) -> None:
-        self._units = units
+    def __init__(self, weather_display, network, datetime) -> None:
         self._network = network
         self._weather_display = weather_display
         self._datetime = datetime
@@ -95,7 +94,7 @@ class TempestWeather():
         if weather == {} or weather['current_conditions'] == None or len(weather['current_conditions']) == 0:
             if self._missed_weather > 5: 
                 self._weather_display.hide_temperature()
-                self._weather_display.add_text_display("Unable to contact API")
+                self._weather_display.add_scroll_text("Unable to contact API")
             # else if 10 updates then restart the device?
             else:
                 self._missed_weather += 1
@@ -107,20 +106,15 @@ class TempestWeather():
 
         try:
             print(weather['current_conditions'])
-            if 'icon' in weather['current_conditions'].keys():
-                # Map tempest weather icon to the standard weather icon
-                icon_name = weather['current_conditions'].get('icon', 'clear-day')
-                icon = ICON_MAP.get(icon_name, 'CLEAR_DAY')
-                self._weather_display.set_icon(icon)
-
+            self._apply_reading('icon', weather, self._weather_display.set_icon)
             self._apply_reading('air_temperature', weather, self._weather_display.set_temperature)
             
             # TODO: Make these generic display methods to add to the QUEUE.  
             # Note we need to be sure to wait for the display to catch up?  or only update the temperature until QUEUE is empty?
-            self._apply_reading('relative_humidity', weather, self._weather_display.set_humidity)  
-            self._apply_reading('feels_like', weather, self._weather_display.set_feels_like)
-            self._apply_reading('wind_avg', weather, self._weather_display.set_wind)
-            self._apply_reading('conditions', weather, self._weather_display.set_description)
+            self._apply_reading('relative_humidity', weather, self._weather_display.add_scroll_text)  
+            self._apply_reading('feels_like', weather, self._weather_display.add_scroll_text)
+            self._apply_reading('wind_avg', weather, self._weather_display.add_scroll_text)
+            self._apply_reading('conditions', weather, self._weather_display.add_scroll_text)
             
             # TODO: In theory I could assume anything else is a straight read from data
         except Exception as ex:
@@ -155,10 +149,29 @@ class TempestWeather():
         return self._datetime.is_display_on
     
 
-    def _apply_reading(self, field, weather, method):
+    def _apply_reading(self, field, weather, func):
         # TODO add a log message that field was not found.
         if field in weather['current_conditions'].keys():
-            method(weather['current_conditions'][field])
+            try:
+                field_val = weather['current_conditions'][field]
+                # Apply units if required
+                if field == 'air_temperature':
+                    disp_val = f"{int(field_val)}°{weather['units']['units_temp']}"
+                    func(disp_val)
+                elif field == 'icon':
+                    # Map tempest weather icon to the standard weather icon
+                    icon = ICON_MAP.get(field_val, 'CLEAR_DAY')
+                    self._weather_display.set_icon(icon)
+                elif field == 'relative_humidity':
+                    func(f'{field_val}% humidity')
+                elif field == 'feels_like':
+                    func(f'Feels like {int(field_val)}°{weather["units"]["units_temp"]}')
+                elif field == 'wind_avg':
+                    func(f'Wind {int(field_val)}{weather["units"]["units_wind"]}')
+                else:
+                    func(weather['current_conditions'][field])
+            except Exception as ex:
+                print('Unable to apply reading', ex)
 
 
     def scroll_label(self, key_input):

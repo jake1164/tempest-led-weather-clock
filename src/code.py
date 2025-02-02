@@ -102,9 +102,10 @@ key_input = KeyProcessing(settings, datetime, buzzer)
 weather_display = WeatherDisplay(display, icons)
 
 try:
-    weather = TempestWeather(weather_display, network, datetime, weather_display.units)
+    weather = TempestWeather(weather_display, network, datetime)
 except Exception as e:
-    print("Unable to configure weather, exiting")
+    print("Unable to configure weather, exiting: " + e)
+    #TODO: Display a error message on the window with an error code.
     import sys
     sys.exit()
 
