@@ -16,8 +16,8 @@ CLOCK_PIN = board.GP11
 LATCH_PIN = board.GP12
 OUTPUT_ENABLE_PIN = board.GP13
 
-icon_spritesheet = "/images/weather-icons.bmp"
-splash_img = "/images/ws.bmp"
+icon_spritesheet_file = "/images/weather-icons.bmp"
+splash_img_file = "/images/ws.bmp"
 time_format_flag = 0 # 12 or 24 (0 or 1) hour display.
 
 BASE_WIDTH = 64
@@ -66,9 +66,7 @@ from splash_display import SplashDisplay
 # Associate the RGB matrix with a Display so that we can use displayio features
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 
-#display a splash screen to hide the random text that appears.
-splash_icon = displayio.OnDiskBitmap(open(splash_img, "rb"))
-splash = SplashDisplay(splash_icon, version)
+splash = SplashDisplay(splash_img_file, version)
 display.root_group = splash
 print('free memory', gc.mem_free(), gc.mem_alloc())
 
@@ -88,9 +86,9 @@ try:
     network = WifiNetwork() # TODO: catch exception and do something meaninful with it.
 except Exception as e:
     print('Network exception?', e)
-
-# TODO: Display wifi config icon 
-icons = displayio.OnDiskBitmap(open(icon_spritesheet, "rb"))
+    # TODO: Display wifi config icon 
+    
+icons = displayio.OnDiskBitmap(open(icon_spritesheet_file, "rb"))
 
 settings = Settings()
 buzzer = Buzzer(settings)
@@ -104,8 +102,19 @@ weather_display = WeatherDisplay(display, icons)
 try:
     weather = TempestWeather(weather_display, network, datetime)
 except Exception as e:
-    print("Unable to configure weather, exiting: " + e)
-    #TODO: Display a error message on the window with an error code.
+    print(f"Unable to configure weather, exiting: {e}")
+    try:
+        from error_display import ErrorDisplay
+        print('error_display')
+        error_display = ErrorDisplay("/images/config_error.bmp", str(e))
+        print('display')
+        display.root_group = error_display
+        while True:
+            error_display.scroll()
+        # Pause here and stop processing.
+    except Exception as ex:
+        print(ex)
+    # if error display errored out then exit.
     import sys
     sys.exit()
 
