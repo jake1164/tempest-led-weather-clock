@@ -13,7 +13,7 @@ TEMPEST_STATION = 0 #YourStationNumber
 # Valid Settings:  imperial (temp=f, wind=mph, pressure=inhg, precip=in, distance=mi) or metric (temp=c, wind=kph, pressure=mb, precip=cm, distance=km)
 UNITS = "imperial"
 
-### Fine Tuning of settings. Use these settings to adjust any (or all) of th   
+### Fine Tuning of settings. Use these settings to adjust any (or all) of the settings
 ## Temperature (Note this will override the default UNITS setting if enabled)
 ## Valid Settings: f or c
 UNITS_TEMP = "f"
