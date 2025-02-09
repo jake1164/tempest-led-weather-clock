@@ -7,12 +7,14 @@ from collections import deque
 from adafruit_display_text import bitmap_label
 from adafruit_bitmap_font import bitmap_font
 
+
 COLOR_SCROLL = 0x0000DD  # Dark blue
 COLOR_TEMP = 0x00DD00    # Green
 COLOR_TIME = 0x00DDDD    # Light Blue
 COLOR_DARK = 0x800000    # Dark Red
 SCROLL_DELAY = 0.06       # How fast does text scroll
 SCROLL_END_WAIT = 0.75    # How long do you display the label after the scrolling ends.
+
 
 class WeatherDisplay(displayio.Group):
     def __init__(self, display, icons) -> None:
@@ -25,9 +27,6 @@ class WeatherDisplay(displayio.Group):
         self._pallete[1] = COLOR_DARK
 
         self._random_pixel = displayio.Bitmap(64, 32, 2)
-
-        self.units = os.getenv('UNITS')
-        
         self._small_font = bitmap_font.load_font(small_font)
         self._small_font.load_glyphs(glyphs)
         self._small_font.load_glyphs(("°",))
@@ -97,45 +96,67 @@ class WeatherDisplay(displayio.Group):
                 self._icon_sprite.hidden = False
 
 
-    def set_temperature(self, temp):        
-        self.temperature.text = self.get_temperature(temp)
-
-
-    def get_temperature(self, temp):        
-        if self.units == 'metric':
-            unit = "%d°C"
-        else:
-            unit = "%d°F"                  
-        return unit % temp
+    def set_temperature(self, temp):
+        self.temperature.text = temp
 
 
     def hide_temperature(self):
         self.temperature.text = ""
         if self._icon_group:
-            self._icon_group.pop()        
+            self._icon_group.pop()
 
 
-    def set_icon(self, name):
-        if self._current_icon == name:
+    def set_icon(self, icon: str) -> None:
+        if self._current_icon == icon:
             return
-        self._current_icon = name
 
-        icon_map = ("01", "02", "03", "04", "09", "10", "11", "13", "50")        
+        self._current_icon = icon
+
+        icon_map = {
+            'CLEAR_DAY': (0, 0),
+            'CLEAR_NIGHT': (0, 1),
+            'PARTLY_CLOUDY_DAY': (1, 0),
+            'PARTLY_CLOUDY_NIGHT': (1, 1),
+            'CLOUDY': (2, 0),
+            'OVERCAST': (3, 0),
+            'RAIN': (4, 0),
+            'SHOWER': (5, 0),
+            'THUNDERSTORM': (6, 0),
+            'SNOW': (7, 0),
+            'MIST': (8, 0),
+        }
+
         if self._icon_group:
             self._icon_group.pop()
-        if name is not None:
-            row = None
-            for index, icon in enumerate(icon_map):
-                if icon == name[0:2]:
-                    row = index
-                    break
-            column = 0
-            if name[2] == "n":
-                column = 1
+        if icon is not None:
+            row, column = icon_map.get(icon, (None, None))
             if row is not None:
                 self._icon_sprite[0] = (row * 2) + column
                 self._icon_group.append(self._icon_sprite)
         gc.collect()
+
+
+#        if self._current_icon == icon:
+#        return
+        
+#        self._current_icon = name
+#
+ #       icon_map = ("01", "02", "03", "04", "09", "10", "11", "13", "50")        
+##        if self._icon_group:
+#            self._icon_group.pop()
+#        if name is not None:
+#            row = None
+#            for index, icon in enumerate(icon_map):
+#                if icon == name[0:2]:
+#                    row = index
+#                    break
+#            column = 0
+#            if name[2] == "n":
+#                column = 1
+#            if row is not None:
+#                self._icon_sprite[0] = (row * 2) + column
+#                self._icon_group.append(self._icon_sprite)
+#        gc.collect()
 
 
     def set_time(self, time_string) -> bool:
@@ -144,31 +165,12 @@ class WeatherDisplay(displayio.Group):
             return True
         return False
 
-    
-    def set_humidity(self, humidity):
-        self.scroll_queue.append(f'{humidity}% humidity')        
+
+    def set_date(self, date_text):
+        self.scroll_queue.append(date_text)
 
 
-    def set_description(self, description_text):
-        self.scroll_queue.append(description_text)
-
-
-    def set_feels_like(self, feels_like):
-        self.scroll_queue.append("Feels Like " + self.get_temperature(feels_like))
-
-
-    def set_date(self, date_text):        
-        self.scroll_queue.append(date_text)       
-
-
-    def set_wind(self, wind):       
-        if self.units == "imperial":
-            self.scroll_queue.append(f'wind {wind:.1f} mph')
-        else:
-            self.scroll_queue.append(f'wind {wind:.1f} m/s')
-
-
-    def add_text_display(self, text):
+    def add_scroll_text(self, text):
         self.scroll_queue.append(text)
 
 

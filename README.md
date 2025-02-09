@@ -1,41 +1,46 @@
 # tempest-led-weather-clock
-LED Matrix Clock with weather running on a Raspberry Pico 2 W (recommended) or a pico W and a WaveShare [Pico-RGB-Matrix-P3-64x32](https://www.waveshare.com/wiki/Pico-RGB-Matrix-P3-64x32) 
+LED Matrix Clock with weather running on a Raspberry Pico 2 W with a WaveShare [Pico-RGB-Matrix-P3-64x32](https://www.waveshare.com/wiki/Pico-RGB-Matrix-P3-64x32) and displaying weather information from a WeatherFlow Tempest weather station. For those without a Tempest check out the Open Weather Maps driven solution [Pico-RGB-Matrix-Weather-Clock](https://github.com/jake1164/Pico-RGB-Matrix-Weather-Clock)
+
+## NOTE: RASPBERRY PICO 2 W is REQUIRED for this to work.
+The pico while wonderful has too many memory limitations. The [pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/) is a drop in replacement and will make everything just work. 
 
 ## NOTE: THIS PROJECT REQUIRES CircuitPython 9.0.0 or later
 This project requires that you use [circuitpython 9.x.x](https://circuitpython.org/board/raspberry_pi_pico_w/). 
 
-## Weather APIs
-A subscription to Open Weather Map (OWM) is required to display the current conditions and the current condition icon. Tempest api is optional, if provided it will pull all information except the above two items from OWM.
-
-### [Open Weather Map](https://openweathermap.org)
-Go to the [OWM sign up](https://openweathermap.org/appid) and using the free subscription is enough to create a working Token for this project.
-Put the token from the [OWM API Keys page](https://home.openweathermap.org/api_keys) into the settings.toml file in the OWM_API_TOKEN="" setting.
-OWM uses your geolocation which gets looked up via the Geolocation api, for this you need to provide your zipcode and the Country under OWM settings listed below.
-Be sure to enable the OWM api by setting the OWM_ENABLE=1 to turn it on.
-
 ### [Tempest](https://tempestwx.com/)
 Sign into your tempest portal to create a application token under [Settings](https://tempestwx.com/settings) and find your stationID (in the URL after you sign up).
 Put the token from [Data Authorizations](https://tempestwx.com/settings/tokens) in the settings.toml file under TEMPEST_API_TOKEN="" and enter the station under the TEMPEST_STATION=xxxxx  where xxxxx is the number from tempestwx.com/station/xxxxx/
-Be sure to enable the tempest api by setting the TEMPEST_ENABLE=1 to turn it on.
 
-## Settings
-Requires a settings.toml file with the following settings in settings file:
+## Configuration File Settings
+Rename settings.toml.default file to settings.toml on the Pico and adjust the following settings:
 
+### Wifi Settings
 * WIFI_SSID="your ssid"
 * WIFI_PASSWORD="yoursupersecretpassword"
 * NTP_HOST="0.adafruit.pool.ntp.org"
 * TZ_OFFSET=<timezone offset> ie TZ_OFFSET=-5
-* NTP_INTERVAL=6
-* UNITS="imperial" # imperial or metric
+* NTP_INTERVAL=21600  # note: 21600 = 6hr, 43200 = 12hr, 86400 = 24hr
 ### tempestwx.com (tempest) Data Authorization
-* TEMPEST_ENABLE=0 # 0 = disabled, 1 = enabled
 * TEMPEST_API_TOKEN="yourDataAuthorizationToken"
 * TEMPEST_STATION=0 #YourStationNumber
-### openweathermap.org Data Authorization
-* OWM_ENABLE=0 # 0 = disabled, 1 = enabled
-* OWM_API_TOKEN="Your Token"
-* OWM_ZIP="zip/post code"
-* OWM_COUNTRY="US" # Please use ISO 3166 country codes
+### Data configuration
+* UNITS="imperial" # Valid Settings:  imperial (temp=f, wind=mph, pressure=inhg, precip=in, distance=mi) or metric (temp=c, wind=kph, pressure=mb, precip=cm, distance=km)
+### Fine Tuning of settings. Use these settings to adjust any (or all) of the settings
+## Temperature (Note this will override the default UNITS setting if enabled)
+UNITS_TEMP = "f" # Valid Settings: f or c
+
+## Wind Speed (Note this will override the default UNITS setting if enabled)
+UNITS_WIND = "mph" # Valid Settings: mph, kph, kts, mps, bft, lfm
+
+## Pressure units (Note this will override the default UNITS setting if enabled)
+UNITS_PRESSURE = "mb" # Valid Settings: mb, inhg, mmhg, hpa
+
+## Amount of rain (Note this will override the default UNITS setting if enabled)
+UNITS_PRECIP = "in" # Valid Settings: mm, cm, in
+
+## Lightning strike distance (Note this will override the default UNITS setting if enabled)
+UNITS_DISTANCE = "mi" # Valid Settings: km, mi
+
 
 ## Persistant Settings
 To enable in application settings you must rename the _boot.py file to boot.py and place it on your device.  
@@ -51,7 +56,7 @@ Settings:
 **NOTE** When boot.py is enabled the drive becomes read only for your computer, to make changes you must hold down the menu / KEY0 button (Bottom button) when you turn on the device. This setting is only read at boot and restarting will have no effect on this setting. 
 
 ## Board
-This project requires the use of a [Raspberry Pico W](https://www.raspberrypi.com/products/raspberry-pi-pico/) to use the WIFI for getting information for displaying on the screen such as updated time, and eventually local weather. (api to be defined soon)
+This project requires the use of a Raspberry [pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/) to use the WIFI for getting information for displaying on the screen such as updated time, and eventually local weather. (api to be defined soon)
 
 ## Circuitpython 9.0.0
 This project requires that you use [circuitpython 9.x.x](https://circuitpython.org/board/raspberry_pi_pico_w/). 

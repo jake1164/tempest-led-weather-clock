@@ -5,18 +5,31 @@ TZ_OFFSET = -5
 # 21600 = 6hr, 43200 = 12hr, 86400 = 24hr
 NTP_INTERVAL = 21600 
 
-# weather settings # imperial or metric
-UNITS = "imperial"
-
 # weatherwx.com (tempest) Data Authorization
-TEMPEST_ENABLE = 0 # 0 = disabled, 1 = enabled
 TEMPEST_API_TOKEN = "yourDataAuthorizationToken"
 TEMPEST_STATION = 0 #YourStationNumber
 
-# openweathermap.org Data Authorization
-OWM_ENABLE = 0 # 0 = disabled, 1 = enabled
-OWM_API_TOKEN = "Your Token"
-OWM_ZIP = "zip/post code"
-OWM_COUNTRY = "US" # Please use ISO 3166 country codes
-# Set to 1 to enable using https:// urls
-OWM_USE_HTTPS = 0 ## NOTE: https does not play well with the PICO due to lack of memory
+### General units settings - Use this to set to common US or Metric settings.
+# Valid Settings:  imperial (temp=f, wind=mph, pressure=inhg, precip=in, distance=mi) or metric (temp=c, wind=kph, pressure=mb, precip=cm, distance=km)
+UNITS = "imperial"
+
+### Fine Tuning of settings. Use these settings to adjust any (or all) of the settings
+## Temperature (Note this will override the default UNITS setting if enabled)
+## Valid Settings: f or c
+UNITS_TEMP = "f"
+
+## Wind Speed (Note this will override the default UNITS setting if enabled)
+## Valid Settings: mph, kph, kts, mps, bft, lfm
+UNITS_WIND = "mph"
+
+## Pressure units (Note this will override the default UNITS setting if enabled)
+## Valid Settings: mb, inhg, mmhg, hpa
+UNITS_PRESSURE = "mb"
+
+## Amount of rain (Note this will override the default UNITS setting if enabled)
+## Valid Settings: mm, cm, in
+UNITS_PRECIP = "in"
+
+## Lightning strike distance (Note this will override the default UNITS setting if enabled)
+## Valid Settings: km, mi
+UNITS_DISTANCE = "mi"
