@@ -14,13 +14,15 @@ class ErrorDisplay(displayio.Group):
         try:
             
             icon = displayio.OnDiskBitmap(open(error_file, "rb"))
+            image_width = icon.width
+            image_height = icon.height
             bg = displayio.TileGrid(
                 icon,
                 pixel_shader=getattr(icon, 'pixel_shader', displayio.ColorConverter()),
                 width=1,
                 height=1,
-                tile_width=24,
-                tile_height=24,
+                tile_width=image_width,
+                tile_height=image_height,
                 x=ICON_X,
                 y=ICON_Y
             )
@@ -32,7 +34,7 @@ class ErrorDisplay(displayio.Group):
             terminalio.FONT, 
             color=0xFFFF00,  # Yellow color
             text=description,
-            max_characters=30,
+            max_characters=len(description),
             animate_time=0.3
         )
         self.error_label.anchor_point = (1.0, 1.0)

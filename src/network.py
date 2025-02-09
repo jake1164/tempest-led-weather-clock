@@ -19,13 +19,15 @@ class WifiNetwork:
 
         # NTP specific constants
         self.TZ = os.getenv('TZ_OFFSET')
-        # Offer up to 3 ntp api's.
-        self.NTP_HOST = os.getenv('NTP_HOST').split('|', 2)
         self.INTERVAL = os.getenv('NTP_INTERVAL')
+
+        # Offer up to 3 ntp api's.
+        hosts = os.getenv('NTP_HOST')
+        self.NTP_HOST = hosts.split('|') if hosts else None
 
         if self.TZ is None or self.NTP_HOST is None or self.INTERVAL is None:
             raise Exception("NTP_HOST, NTP_INTERVAL & TZ_OFFSET are stored in settings.toml, please add them")
-        
+
         self._last_ntp_sync = None
         self.connect()
         self._pool = socketpool.SocketPool(wifi.radio)
@@ -42,16 +44,18 @@ class WifiNetwork:
         print("connecting to: {}".format(self.SSID))
         # TODO: async methods?
         attempt = 1
+        error = None
         while(attempt <= self.RETRY_WIFI):
             try:
                 # TODO: async methods?
                 wifi.radio.connect(self.SSID, self.PASS)                        
                 return True
             except Exception as e:
+                error = str(e)
                 print(e)
             attempt += 1
-        
-        raise Exception('Unable to connect')
+
+        raise Exception(error)
 
 
 

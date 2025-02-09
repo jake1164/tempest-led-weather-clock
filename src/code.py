@@ -83,9 +83,20 @@ from buzzer import Buzzer
 
 
 try:
+    # check that the settings.toml file exists.
+    try:
+        os.stat('settings.toml')
+    except OSError:
+        raise Exception('settings.toml file not found.. rename settings.toml.default to settings.toml')
+
     network = WifiNetwork() # TODO: catch exception and do something meaninful with it.
 except Exception as e:
-    print('Network exception?', e)
+    print('Network exception: ', e)
+    from error_display import ErrorDisplay
+    error_display = ErrorDisplay("/images/wifi.bmp", str(e))
+    display.root_group = error_display
+    while True:
+        error_display.scroll()
     # TODO: Display wifi config icon 
     
 icons = displayio.OnDiskBitmap(open(icon_spritesheet_file, "rb"))
@@ -105,9 +116,7 @@ except Exception as e:
     print(f"Unable to configure weather, exiting: {e}")
     try:
         from error_display import ErrorDisplay
-        print('error_display')
         error_display = ErrorDisplay("/images/config_error.bmp", str(e))
-        print('display')
         display.root_group = error_display
         while True:
             error_display.scroll()
