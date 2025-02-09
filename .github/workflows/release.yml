@@ -22,7 +22,7 @@ jobs:
       #uses: jake1164/build-mpy@fetch-submodules-fix
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}        
-        circuitpy-tag: "tags/9.2.4"
+        circuitpy-tag: "9.1.3"
         mpy-directory: "src"
         mpy-manifest-file: "mpy-manifest.txt"
         mpy-manifest-type: "exclude"
