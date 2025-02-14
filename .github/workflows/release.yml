@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: checkout the current repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -22,7 +22,6 @@ jobs:
       uses: jake1164/build-mpy@static-mpy-cross
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}        
-        circuitpy-tag: "9.1.3"
         mpy-directory: "src"
         mpy-manifest-file: "mpy-manifest.txt"
         mpy-manifest-type: "exclude"
