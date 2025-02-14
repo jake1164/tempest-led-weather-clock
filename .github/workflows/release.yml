@@ -21,7 +21,8 @@ jobs:
       #uses: adafruit/build-mpy@v1.0.4
       uses: jake1164/build-mpy@static-mpy-cross
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}        
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        mpy-cross-version: "8.0.0"
         mpy-directory: "src"
         mpy-manifest-file: "mpy-manifest.txt"
         mpy-manifest-type: "exclude"
