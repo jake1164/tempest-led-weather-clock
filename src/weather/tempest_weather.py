@@ -91,8 +91,16 @@ class TempestWeather():
             print('unable to get weather', ex)
             weather = None
 
-        if weather == {} or weather['current_conditions'] == None or len(weather['current_conditions']) == 0:
-            if self._missed_weather > 5: 
+        if not weather or 'current_conditions' not in weather or len(weather['current_conditions']) == 0:
+            if self._missed_weather > 10:
+                import microcontroller
+                # restart the device
+                self._weather_display.add_scroll_text("Restarting device")
+                self._weather_display.show()
+                microcontroller.reset()
+                return
+            
+            if self._missed_weather > 5 and self._missed_weather < 10: 
                 self._weather_display.hide_temperature()
                 self._weather_display.add_scroll_text("Unable to contact API")
             # else if 10 updates then restart the device?
