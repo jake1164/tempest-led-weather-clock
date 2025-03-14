@@ -143,10 +143,6 @@ class WeatherDisplay(displayio.Group):
         return False
 
 
-    def set_date(self, date_text) -> None:
-        self.scroll_queue.append(date_text)
-
-
     def add_scroll_text(self, text) -> None:
         self.scroll_queue.append(text)
 

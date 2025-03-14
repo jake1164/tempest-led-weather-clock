@@ -114,6 +114,11 @@ class TempestWeather():
             print('unable to get weather', ex)
             weather = None
 
+        # Always add the date so there is something to scroll. 
+        self._weather_display.add_scroll_text(
+            self._datetime.get_date()
+        )
+
         if not weather or 'current_conditions' not in weather or len(weather['current_conditions']) == 0:
             if self._missed_weather > 10:
                 import microcontroller
