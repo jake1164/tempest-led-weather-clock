@@ -2,6 +2,7 @@
 # https://weatherflow.github.io/Tempest/api/ 
 import os
 
+DEBUG = False
 STATIONS_URL = 'https://swd.weatherflow.com/swd/rest/stations?token={}'
 BETTER_URL = 'https://swd.weatherflow.com/swd/rest/better_forecast?station_id={}&units_temp={}&units_wind={}&units_pressure={}&units_precip={}&units_distance={}&token={}'
 
@@ -60,7 +61,7 @@ class TempestWeather():
         precip = self._get_units('UNITS_PRECIP', ['in', 'mm', 'cm'], default_units)
         distance = self._get_units('UNITS_DISTANCE', ['mi', 'km'], default_units)
 
-        return BETTER_URL.format(station, temp, wind, pressure, precip,distance, token)
+        return BETTER_URL.format(station, temp, wind, pressure, precip, distance, token)
 
 
     def _get_units(self, setting: str, valid_units, default_unit: str) -> str:
@@ -86,30 +87,25 @@ class TempestWeather():
         return weather
 
 
-    def _apply_reading(self, field, weather, func) -> None:
-        if field in weather['current_conditions'].keys():
+    def _apply_reading(self, weather, field: tuple, func, format="{field1}", formatData=None) -> None:
+        if isinstance(field[0], int) and isinstance(weather, list) and field[0] < len(weather):
+            self._apply_reading(weather[field[0]], field[1:], func, format, formatData)
+        elif field and field[0] in weather:
             try:
-                field_val = weather['current_conditions'][field]
-                # Apply units if required
-                if field == 'air_temperature':
-                    disp_val = f"{int(field_val)}°{weather['units']['units_temp']}"
-                    func(disp_val)
-                elif field == 'icon':
-                    # Map tempest weather icon to the standard weather icon
-                    icon = ICON_MAP.get(field_val, 'CLEAR_DAY')
-                    self._weather_display.set_icon(icon)
-                elif field == 'relative_humidity':
-                    func(f'{field_val}% humidity')
-                elif field == 'feels_like':
-                    func(f'Feels like {int(field_val)}°{weather["units"]["units_temp"]}')
-                elif field == 'wind_avg':
-                    func(f'Wind {int(field_val)}{weather["units"]["units_wind"]}')
+                if(len(field) > 1):
+                    self._apply_reading(weather[field[0]], field[1:], func, format, formatData)
                 else:
-                    func(weather['current_conditions'][field])
+                    if formatData is None:
+                        formatData = {}
+
+                    if field[0] == 'icon':
+                        icon = ICON_MAP.get(weather[field[0]], 'CLEAR_DAY')
+                        func(icon)
+                    else:
+                        func(format.format(field1=weather[field[0]], **formatData))
             except Exception as ex:
                 print('Unable to apply reading', ex)
-        else:
-            print(f'Field {field} not found in weather data')
+
 
     def show_weather(self):
         try:
@@ -140,16 +136,42 @@ class TempestWeather():
             self._missed_weather = 0
 
         try:
-            print(weather['current_conditions'])
-            self._apply_reading('icon', weather, self._weather_display.set_icon)
-            self._apply_reading('air_temperature', weather, self._weather_display.set_temperature)
-            
+            if DEBUG:
+                print(weather['current_conditions'])
+
+            self._apply_reading(weather, 
+                                ('current_conditions', 'icon'), 
+                                self._weather_display.set_icon
+                                )
+            self._apply_reading(weather, ('current_conditions', 'air_temperature'), 
+                                self._weather_display.set_temperature, 
+                                "{field1:.0f}°{field2}", 
+                                {'field2': weather['units']['units_temp']}
+                                )
+
             # TODO: Make these generic display methods to add to the QUEUE.  
             # Note we need to be sure to wait for the display to catch up?  or only update the temperature until QUEUE is empty?
-            self._apply_reading('relative_humidity', weather, self._weather_display.add_scroll_text)  
-            self._apply_reading('feels_like', weather, self._weather_display.add_scroll_text)
-            self._apply_reading('wind_avg', weather, self._weather_display.add_scroll_text)
-            self._apply_reading('conditions', weather, self._weather_display.add_scroll_text)
+            self._apply_reading(weather, 
+                                ('current_conditions', 'relative_humidity'), 
+                                self._weather_display.add_scroll_text, 
+                                "{field1}% humidity"
+                                )
+            self._apply_reading(weather, 
+                                ('current_conditions', 'feels_like'), 
+                                self._weather_display.add_scroll_text, 
+                                "Feels Like {field1:.0f}°{field2}", 
+                                {'field2': weather['units']['units_temp']}
+                                )
+            self._apply_reading(weather, 
+                                ('current_conditions', 'wind_avg'), 
+                                self._weather_display.add_scroll_text,  
+                                "Wind {field1:.1f} {field2}" , 
+                                {'field2': weather['units']['units_wind']}
+                                )
+            self._apply_reading(weather, 
+                                ('current_conditions', 'conditions'), 
+                                self._weather_display.add_scroll_text
+                                )
             
             # TODO: In theory I could assume anything else is a straight read from data
         except Exception as ex:
