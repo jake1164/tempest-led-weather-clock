@@ -38,12 +38,12 @@ class WeatherDisplay(displayio.Group):
 
         self._current_icon = None
         
-        self.scroll_queue = deque((), 5) # TODO: this size needs to come from openweather.. 
+        self.scroll_queue = deque((), 5) # TODO: this size needs to come from tempest_weather 
 
-        self.root_group = displayio.Group()      
+        self.root_group = displayio.Group()
         self._text_group = displayio.Group()
         self._icon_group = displayio.Group()
-        self._scrolling_group = displayio.Group()        
+        self._scrolling_group = displayio.Group()
         self._random_pixel_group = displayio.Group()
         self._random_pixel_group.append(displayio.TileGrid(self._random_pixel, pixel_shader=self._pallete))
 
@@ -53,7 +53,7 @@ class WeatherDisplay(displayio.Group):
         self._icon_group.x = 48
         self._icon_group.y = 0
 
-        self.temperature = bitmap_label.Label(self._small_font, color=COLOR_TEMP)        
+        self.temperature = bitmap_label.Label(self._small_font, color=COLOR_TEMP)
         self.temperature.x = 1
         self.temperature.y = 5
 
@@ -81,8 +81,8 @@ class WeatherDisplay(displayio.Group):
         gc.collect()
 
 
-    def set_display_mode(self, darkmode):        
-        if self._dark_mode == darkmode:            
+    def set_display_mode(self, darkmode) -> None:
+        if self._dark_mode == darkmode:
             pass # No change
         else:
             self._dark_mode = darkmode # Only change once
@@ -96,11 +96,11 @@ class WeatherDisplay(displayio.Group):
                 self._icon_sprite.hidden = False
 
 
-    def set_temperature(self, temp):
-        self.temperature.text = temp
+    def set_temperature(self, temp_text) -> None:
+        self.temperature.text = temp_text
 
 
-    def hide_temperature(self):
+    def hide_temperature(self) -> None:
         self.temperature.text = ""
         if self._icon_group:
             self._icon_group.pop()
@@ -136,29 +136,6 @@ class WeatherDisplay(displayio.Group):
         gc.collect()
 
 
-#        if self._current_icon == icon:
-#        return
-        
-#        self._current_icon = name
-#
- #       icon_map = ("01", "02", "03", "04", "09", "10", "11", "13", "50")        
-##        if self._icon_group:
-#            self._icon_group.pop()
-#        if name is not None:
-#            row = None
-#            for index, icon in enumerate(icon_map):
-#                if icon == name[0:2]:
-#                    row = index
-#                    break
-#            column = 0
-#            if name[2] == "n":
-#                column = 1
-#            if row is not None:
-#                self._icon_sprite[0] = (row * 2) + column
-#                self._icon_group.append(self._icon_sprite)
-#        gc.collect()
-
-
     def set_time(self, time_string) -> bool:
         if self.time.text != time_string:
             self.time.text = time_string
@@ -166,19 +143,15 @@ class WeatherDisplay(displayio.Group):
         return False
 
 
-    def set_date(self, date_text):
-        self.scroll_queue.append(date_text)
-
-
-    def add_scroll_text(self, text):
+    def add_scroll_text(self, text) -> None:
         self.scroll_queue.append(text)
 
 
-    def scroll_label(self, key_input):
+    def scroll_label(self, key_input) -> None:
         '''
         Scrolls the label until all the text has been shown
         TODO: Includes a hack to check if a button has been pressed to exit early because user is trying to get into the settings menu.
-        '''      
+        '''
         # Button press leaves items in scroll group and mucks things up
         while len(self._scrolling_group) > 0:
             self._scrolling_group.pop()

@@ -61,15 +61,15 @@ matrix = RGBMatrix(
 )
 del calcuated_width, calculated_height
 
-# project classes 
-from splash_display import SplashDisplay
 # Associate the RGB matrix with a Display so that we can use displayio features
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 
-splash = SplashDisplay(splash_img_file, version)
+#display a splash screen to hide the random text that appears.
+from common_display import CommonDisplay
+splash = CommonDisplay(splash_img_file, version.get_version_string())
 display.root_group = splash
-print('free memory', gc.mem_free(), gc.mem_alloc())
 
+# project classes 
 from settings_display import SETTINGS, SettingsDisplay
 from date_utils import DateTimeProcessing
 from key_processing import KeyProcessing
@@ -80,8 +80,6 @@ from weather.weather_display import WeatherDisplay
 from persistent_settings import Settings
 from buzzer import Buzzer
 
-
-
 try:
     # check that the settings.toml file exists.
     try:
@@ -89,17 +87,15 @@ try:
     except OSError:
         raise Exception('settings.toml file not found.. rename settings.toml.default to settings.toml')
 
-    network = WifiNetwork() # TODO: catch exception and do something meaninful with it.
+    network = WifiNetwork()
 except Exception as e:
     print('Network exception: ', e)
-    from error_display import ErrorDisplay
-    error_display = ErrorDisplay("/images/wifi.bmp", str(e))
+    error_display = CommonDisplay("/images/wifi.bmp", str(e))
     display.root_group = error_display
     while True:
         error_display.scroll()
-    # TODO: Display wifi config icon 
-    
-icons = displayio.OnDiskBitmap(open(icon_spritesheet_file, "rb"))
+
+icons = displayio.OnDiskBitmap(icon_spritesheet_file)
 
 settings = Settings()
 buzzer = Buzzer(settings)
@@ -115,8 +111,7 @@ try:
 except Exception as e:
     print(f"Unable to configure weather, exiting: {e}")
     try:
-        from error_display import ErrorDisplay
-        error_display = ErrorDisplay("/images/config_error.bmp", str(e))
+        error_display = CommonDisplay("/images/config_error.bmp", str(e))
         display.root_group = error_display
         while True:
             error_display.scroll()
@@ -143,7 +138,7 @@ settings_visited = False
 del version, splash
 gc.collect()
 
-print('free memory', gc.mem_free())
+print('free memory after loading', gc.mem_free())
 while True:
     # Always process keys first
     key_value = key_input.get_key_value()
