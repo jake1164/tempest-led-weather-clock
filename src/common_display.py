@@ -3,8 +3,8 @@ import displayio
 
 from adafruit_display_text.scrolling_label import ScrollingLabel
 
-class ErrorDisplay(displayio.Group):
-    def __init__(self, error_file, description) -> None:
+class CommonDisplay(displayio.Group):
+    def __init__(self, icon_file, message) -> None:
         super().__init__()
         ICON_X = 1
         ICON_Y = 1
@@ -12,10 +12,10 @@ class ErrorDisplay(displayio.Group):
         DISPLAY_HEIGHT = 32
 
         try:
-            
-            icon = displayio.OnDiskBitmap(open(error_file, "rb"))
+            icon = displayio.OnDiskBitmap(icon_file)
             image_width = icon.width
             image_height = icon.height
+            
             bg = displayio.TileGrid(
                 icon,
                 pixel_shader=getattr(icon, 'pixel_shader', displayio.ColorConverter()),
@@ -33,9 +33,9 @@ class ErrorDisplay(displayio.Group):
         self.error_label = ScrollingLabel(
             terminalio.FONT, 
             color=0xFFFF00,  # Yellow color
-            text=description,
-            max_characters=len(description),
-            animate_time=0.3
+            text=message,
+            max_characters=len(message),
+            animate_time=0.8
         )
         self.error_label.anchor_point = (1.0, 1.0)
         self.error_label.anchored_position = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
