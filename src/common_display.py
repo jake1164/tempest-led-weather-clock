@@ -40,6 +40,8 @@ class CommonDisplay(displayio.Group):
         self.error_label.anchor_point = (1.0, 1.0)
         self.error_label.anchored_position = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.append(self.error_label)
+        self.error_label.update()
+
 
     def scroll(self) -> None:
         self.error_label.update()
