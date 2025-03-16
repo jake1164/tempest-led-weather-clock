@@ -17,7 +17,7 @@ SCROLL_END_WAIT = 0.75    # How long do you display the label after the scrollin
 
 
 class WeatherDisplay(displayio.Group):
-    def __init__(self, display, icons) -> None:
+    def __init__(self, display, icon_spritesheet_file) -> None:
         super().__init__()
         self._display = display
         small_font = "/fonts/helvB12.bdf"
@@ -69,6 +69,7 @@ class WeatherDisplay(displayio.Group):
         self.append(self._text_group) 
         self.append(self._scrolling_group)
         self.append(self._icon_group)
+        icons = displayio.OnDiskBitmap(icon_spritesheet_file)
 
         self._icon_sprite = displayio.TileGrid(
             icons,
@@ -78,6 +79,8 @@ class WeatherDisplay(displayio.Group):
         )
 
         self.set_icon(None)
+
+        del icons
         gc.collect()
 
 
