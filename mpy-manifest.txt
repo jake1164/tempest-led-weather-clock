@@ -1,3 +1,5 @@
 # Exclude the boot.py file because it will be ignored if its compiled.
-
 _boot.py
+
+# Exclude tempest_weather because compiled version might cause memory issues (go figure)
+weather/tempest_weather.py
