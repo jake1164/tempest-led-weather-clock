@@ -68,6 +68,7 @@ display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 from common_display import CommonDisplay
 splash = CommonDisplay(splash_img_file, version.get_version_string())
 display.root_group = splash
+splash.scroll()
 
 # project classes 
 from settings_display import SETTINGS, SettingsDisplay
@@ -95,7 +96,6 @@ except Exception as e:
     while True:
         error_display.scroll()
 
-icons = displayio.OnDiskBitmap(icon_spritesheet_file)
 
 settings = Settings()
 buzzer = Buzzer(settings)
@@ -104,7 +104,7 @@ light_sensor = LightSensor(settings)
 datetime = DateTimeProcessing(settings, network)
 key_input = KeyProcessing(settings, datetime, buzzer)
 
-weather_display = WeatherDisplay(display, icons)
+weather_display = WeatherDisplay(display, icon_spritesheet_file)
 
 try:
     weather = TempestWeather(weather_display, network, datetime)

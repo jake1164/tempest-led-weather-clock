@@ -2,6 +2,7 @@ import terminalio
 import displayio
 
 from adafruit_display_text.scrolling_label import ScrollingLabel
+from adafruit_display_text import label
 
 class CommonDisplay(displayio.Group):
     def __init__(self, icon_file, message) -> None:
@@ -29,18 +30,32 @@ class CommonDisplay(displayio.Group):
             self.append(bg)
         except Exception as e:
             print('Error loading icon:', e)
+        
+        if(len(message) < 20):
+            self.scroll_label = False
+            self.error_label = label.Label(
+                terminalio.FONT,
+                text=message,
+                color=0xFFFF00
+            )
+        else:
+            self.scroll_label = True
+            self.error_label = ScrollingLabel(
+                terminalio.FONT, 
+                color=0xFFFF00,  # Yellow color
+                text=message,
+                max_characters=len(message),
+                animate_time=0.8
+            )
 
-        self.error_label = ScrollingLabel(
-            terminalio.FONT, 
-            color=0xFFFF00,  # Yellow color
-            text=message,
-            max_characters=len(message),
-            animate_time=0.8
-        )
         self.error_label.anchor_point = (1.0, 1.0)
         self.error_label.anchored_position = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.append(self.error_label)
+        if self.scroll_label:
+            self.error_label.update()
+        
 
     def scroll(self) -> None:
-        self.error_label.update()
+        if self.scroll_label:
+            self.error_label.update()
 
