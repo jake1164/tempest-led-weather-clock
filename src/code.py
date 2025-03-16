@@ -68,6 +68,7 @@ display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
 from common_display import CommonDisplay
 splash = CommonDisplay(splash_img_file, version.get_version_string())
 display.root_group = splash
+splash.scroll()
 
 # project classes 
 from settings_display import SETTINGS, SettingsDisplay

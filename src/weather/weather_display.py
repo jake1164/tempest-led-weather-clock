@@ -71,6 +71,8 @@ class WeatherDisplay(displayio.Group):
         self.append(self._icon_group)
         icons = displayio.OnDiskBitmap(icon_spritesheet_file)
 
+        icons = displayio.OnDiskBitmap(icon_spritesheet_file)
+
         self._icon_sprite = displayio.TileGrid(
             icons,
             pixel_shader=getattr(icons, 'pixel_shader', displayio.ColorConverter()),
