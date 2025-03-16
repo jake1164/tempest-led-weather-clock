@@ -69,6 +69,7 @@ class WeatherDisplay(displayio.Group):
         self.append(self._text_group) 
         self.append(self._scrolling_group)
         self.append(self._icon_group)
+        icons = displayio.OnDiskBitmap(icon_spritesheet_file)
 
         icons = displayio.OnDiskBitmap(icon_spritesheet_file)
 
@@ -80,6 +81,7 @@ class WeatherDisplay(displayio.Group):
         )
 
         self.set_icon(None)
+
         del icons
         gc.collect()
 

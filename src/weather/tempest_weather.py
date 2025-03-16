@@ -1,6 +1,7 @@
 # Pulls weather from a the weatherflow api (from a tempest weather station) 
 # https://weatherflow.github.io/Tempest/api/ 
 import os
+import gc
 
 DEBUG = False
 STATIONS_URL = 'https://swd.weatherflow.com/swd/rest/stations?token={}'
@@ -42,7 +43,7 @@ class TempestWeather():
         self.skip = 0
         self.pixel_x = 0
         self.pixel_y = 0
-
+        gc.collect()
 
     def _setup_url(self) -> str:
         token = os.getenv('TEMPEST_API_TOKEN')
@@ -75,6 +76,7 @@ class TempestWeather():
             raise ValueError(f"Invalid units: {unit}. Must be one of {valid_units}")
         return unit
 
+
     def get_update_interval(self) -> int:
         """ Returns the weather update interval in seconds """
         return 20
@@ -82,6 +84,7 @@ class TempestWeather():
 
     def get_weather(self) -> dict:
         weather = self._network.getJson(self._url)
+        #weather = self._network.getJson(self._url, "current_conditions")
         #print(weather)
         # TODO: reduce size of json data and purge gc
         return weather

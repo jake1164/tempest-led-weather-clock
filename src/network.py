@@ -7,6 +7,7 @@ import socketpool
 import adafruit_ntp
 import adafruit_requests
 import adafruit_connection_manager
+#import adafruit_json_stream as json_stream
 
 class WifiNetwork:
     def __init__(self) -> None:
@@ -39,6 +40,7 @@ class WifiNetwork:
         self._requests = adafruit_requests.Session(self._pool, ssl_context)
         self._connection_manager = adafruit_connection_manager.get_connection_manager(self._pool)
 
+
     def connect(self) -> bool:
         """ If not connected connect to the network."""
         print("connecting to: {}".format(self.SSID))
@@ -56,7 +58,6 @@ class WifiNetwork:
             attempt += 1
 
         raise Exception(error)
-
 
 
     def get_time(self):
@@ -78,16 +79,16 @@ class WifiNetwork:
         try:
             print(f'getting url: {url}')
             gc.collect()
-            #print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
-
+            print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
             with self._requests.get(url) as response:
-                #print(f'free memory after: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
+                print(f'free memory after: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
                 return response.json()
         except Exception as e:
             print('response.json Exception:', e)
             #print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
             gc.collect()
         return {}
+
 
     def get_interval(self):
         return int(self.INTERVAL)
@@ -97,3 +98,25 @@ class WifiNetwork:
         pass
 
 
+
+'''
+    def getJson(self, url, params):
+        try:
+            print(f'getting url: {url}')
+            gc.collect()
+            #print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
+
+            with self._requests.get(url) as response:
+                print('response?')
+                data = json_stream.load(response.iter_content(32))
+                print('data?')
+                for event in data["current_conditions"]:
+                    print(event)
+                print(f'free memory after: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
+                return response.json()
+        except Exception as e:
+            print('response.json Exception:', e)
+            #print(f'free memory: {gc.mem_free()} socket count: {self._connection_manager.managed_socket_count}: available: {self._connection_manager.available_socket_count}')
+            gc.collect()
+        return {}
+'''

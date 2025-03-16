@@ -8,7 +8,6 @@ import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
 import board
-#print(dir(board))
  
 RGB_PINS = [board.GP2, board.GP3, board.GP4, board.GP5, board.GP8, board.GP9]
 ADDR_PINS = [board.GP10, board.GP16, board.GP18, board.GP20]
@@ -59,7 +58,8 @@ matrix = RGBMatrix(
     serpentine=SERPENTINE_VALUE,
     doublebuffer=True,
 )
-del calcuated_width, calculated_height
+del calcuated_width, calculated_height, RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+del BASE_WIDTH, BASE_HEIGHT, BIT_DEPTH_VALUE, CHAIN_ACROSS, TILE_DOWN, SERPENTINE_VALUE
 
 # Associate the RGB matrix with a Display so that we can use displayio features
 display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
@@ -96,7 +96,6 @@ except Exception as e:
     while True:
         error_display.scroll()
 
-
 settings = Settings()
 buzzer = Buzzer(settings)
 light_sensor = LightSensor(settings)
@@ -122,7 +121,11 @@ except Exception as e:
     import sys
     sys.exit()
 
+# Clean up unused variables
+del version, splash, splash_img_file, CommonDisplay
+gc.collect()
 
+print('free memory after loading', gc.mem_free())
 #Update the clock when first starting.
 # TODO: Make async
 datetime.update_from_ntp()
@@ -133,12 +136,8 @@ weather.show_weather()
 last_weather = time.time()
 settings_visited = False
 
-# remove splash from memory
-#del bg, splash
-del version, splash
-gc.collect()
-
 print('free memory after loading', gc.mem_free())
+
 while True:
     # Always process keys first
     key_value = key_input.get_key_value()
