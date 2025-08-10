@@ -22,6 +22,7 @@ jobs:
       uses: jake1164/build-mpy@static-mpy-cross
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        circuitpy-version: 9.2.8
         mpy-directory: "src"
         mpy-manifest-file: "mpy-manifest.txt"
         mpy-manifest-type: "exclude"
