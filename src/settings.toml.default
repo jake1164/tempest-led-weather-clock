@@ -33,3 +33,7 @@ UNITS_PRECIP = "in"
 ## Lightning strike distance (Note this will override the default UNITS setting if enabled)
 ## Valid Settings: km, mi
 UNITS_DISTANCE = "mi"
+
+# seconds without a successful weather update before automatic restart.
+# Set to 0 or omit to use the built-in default (300 seconds).
+WEATHER_TIMEOUT = 300

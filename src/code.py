@@ -8,6 +8,7 @@ import time
 import framebufferio
 from rgbmatrix import RGBMatrix 
 import board
+import microcontroller
  
 RGB_PINS = [board.GP2, board.GP3, board.GP4, board.GP5, board.GP8, board.GP9]
 ADDR_PINS = [board.GP10, board.GP16, board.GP18, board.GP20]
@@ -27,6 +28,16 @@ BIT_DEPTH_VALUE = 1
 CHAIN_ACROSS = 1
 TILE_DOWN = 1
 SERPENTINE_VALUE = True
+# Weather update timeout (seconds) before watchdog reset. Configurable via settings.toml (WEATHER_TIMEOUT)
+_weather_timeout_env = os.getenv('WEATHER_TIMEOUT')
+try:
+    WEATHER_TIMEOUT = int(_weather_timeout_env) if _weather_timeout_env is not None else 300
+    # Basic sanity: enforce reasonable lower bound
+    if WEATHER_TIMEOUT < 30:
+        WEATHER_TIMEOUT = 30
+except Exception:
+    WEATHER_TIMEOUT = 300
+del _weather_timeout_env
 
 from version import Version
 version = Version()
@@ -36,7 +47,7 @@ print(f'Version: {version.get_version_string()}')
 # release displays  before creating a new one.
 displayio.release_displays()
 
-calcuated_width = BASE_WIDTH * CHAIN_ACROSS
+calculated_width = BASE_WIDTH * CHAIN_ACROSS
 calculated_height = BASE_HEIGHT * TILE_DOWN
 
 # This next call creates the RGB Matrix object itself. It has the given width
@@ -46,7 +57,7 @@ calculated_height = BASE_HEIGHT * TILE_DOWN
 # Otherwise, try 3, 4 and 5 to see which effect you like best.
 
 matrix = RGBMatrix(
-    width = calcuated_width, 
+    width = calculated_width, 
     height=calculated_height, 
     bit_depth=BIT_DEPTH_VALUE,
     rgb_pins=RGB_PINS,
@@ -58,7 +69,7 @@ matrix = RGBMatrix(
     serpentine=SERPENTINE_VALUE,
     doublebuffer=True,
 )
-del calcuated_width, calculated_height, RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
+del calculated_width, calculated_height, RGB_PINS, ADDR_PINS, CLOCK_PIN, LATCH_PIN, OUTPUT_ENABLE_PIN
 del BASE_WIDTH, BASE_HEIGHT, BIT_DEPTH_VALUE, CHAIN_ACROSS, TILE_DOWN, SERPENTINE_VALUE
 
 # Associate the RGB matrix with a Display so that we can use displayio features
@@ -129,11 +140,15 @@ print('free memory after loading', gc.mem_free())
 #Update the clock when first starting.
 # TODO: Make async
 datetime.update_from_ntp()
-last_ntp = time.time()
+# Use monotonic clock for interval timing (immune to NTP adjustments)
+last_ntp = time.monotonic()
 
 # Get the initial display and set it.
-weather.show_weather()
-last_weather = time.time()
+try:
+    weather.show_weather()
+except Exception as e:
+    print('Initial weather display failed:', e)
+last_weather = time.monotonic()  # tracks last successful weather update
 settings_visited = False
 
 print('free memory after loading', gc.mem_free())
@@ -153,18 +168,26 @@ while True:
             gc.collect()
             
         # current_time in seconds > start_time in seconds + interval in seconds.
-        if time.time() > last_ntp + datetime.get_interval():
+        # Interval check using monotonic to avoid issues if wall clock jumps
+        if time.monotonic() - last_ntp > datetime.get_interval():
             datetime.update_from_ntp()
-            last_ntp = time.time()
+            last_ntp = time.monotonic()
         if weather.show_datetime(): # returns true if autodim enabled and outside of time
             darkmode = light_sensor.get_display_mode()
             weather_display.set_display_mode(darkmode)
             #This is a hack to try to stop buzzer from buzzing while doing something that might hang.
             if not buzzer.is_beeping():
-                if weather.weather_complete() and time.time() > last_weather + weather.get_update_interval():
-                    weather.show_weather()
-                    last_weather = time.time()
+                if weather.weather_complete() and (time.monotonic() - last_weather > weather.get_update_interval()):
+                    try:
+                        weather.show_weather()
+                        last_weather = time.monotonic()
+                    except Exception as e:
+                        print('Weather update failed:', e)
                 weather_display.scroll_label(key_input)
+            # Watchdog: only evaluate during active display period; uses last successful update time
+            if (time.monotonic() - last_weather > WEATHER_TIMEOUT):
+                print('No weather update for', WEATHER_TIMEOUT, 'seconds during active period. Restarting controller...')
+                microcontroller.reset()
 
     elif key_input.page_id == 1: # Process settings pages
         if not settings_visited:
