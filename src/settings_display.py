@@ -45,7 +45,7 @@ SETTINGS = [
         "type": "time"
     },
     {
-        "text": "NTP ON",
+        "text": "NET TIME",
         "type": "bool"
     }
     ]
@@ -222,7 +222,7 @@ class SettingsDisplay(displayio.Group):
             else:
                 self._line2.text = "  on"
                 self._line3.text = "> off"                 
-        if select_setting_options == 10: # NTP ENABLED
+        if select_setting_options == 10: # NET TIME (NTP)
             self._line2.x = 20
             self._line2.y = 7
             self._line3.x = 20
