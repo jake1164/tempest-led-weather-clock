@@ -6,7 +6,7 @@ BUZZ_PIN = board.GP27
 
 class Buzzer:
     def __init__(self, settings) -> None:
-        """ Setup the buzzer and initate values stored by class """
+        """ Setup the buzzer and initiate values stored by class """
         self._buzzer = DigitalInOut(BUZZ_PIN)
         self._buzzer.direction = Direction.OUTPUT
         self._settings = settings
@@ -29,7 +29,7 @@ class Buzzer:
         self._start_beep = True
 
     def three_beep(self):
-        """ beep over the cource of 3 ticks """
+        """ beep over the course of 3 ticks """
         if self.is_beeping():
             self.judgment_buzzer_switch()
             self.beep_count += 1

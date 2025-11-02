@@ -2,7 +2,8 @@ import os
 import board
 from analogio import AnalogIn
 
-LS_PIN = board.GP26
+# NOTE: Pimoroni Pico Plus 2W maps the A0 pin to GP40 so we need to use the A0 alias to be portable across Pico boards.
+LS_PIN = board.A0
 
 
 class LightSensor:
