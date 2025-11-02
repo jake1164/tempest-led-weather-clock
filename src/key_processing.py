@@ -75,23 +75,23 @@ class KeyProcessing:
         # I think the premise is they wait for none to tell if the key has been released, but it only really relates to key 3
         # Without the None key it will keypress twice. 
         # Menu key should work for any duration of press
-        if self._key_menu_value > 0 and keyValue == None:
+        if self._key_menu_value > 0 and keyValue is None:
             self.key_menu_processing_function()
             self._buzzer.judgment_buzzer_switch() # When the menu exits it beeps also
             self._key_menu_value = 0
 
-        if self._key_down_value > 0 and self._key_down_value < 20 and keyValue == None:
+        if self._key_down_value > 0 and self._key_down_value < 20 and keyValue is None:
             self.key_press_processing(up_key=False)
             self._buzzer.judgment_buzzer_switch()
             self._key_down_value = 0
-        elif self._key_down_value >= 20 and keyValue == None:
+        elif self._key_down_value >= 20 and keyValue is None:
             self._key_down_value = 0
 
-        if self._key_up_value > 0 and self._key_up_value < 20 and keyValue == None:
+        if self._key_up_value > 0 and self._key_up_value < 20 and keyValue is None:
             self.key_press_processing(up_key=True)
             self._buzzer.judgment_buzzer_switch()
             self._key_up_value = 0
-        elif self._key_up_value >= 20 and keyValue == None: # Long press UP to exit
+        elif self._key_up_value >= 20 and keyValue is None: # Long press UP to exit
             self.key_exit_processing_function()
             self._buzzer.judgment_buzzer_switch()
             self._key_up_value = 0
@@ -153,7 +153,6 @@ class KeyProcessing:
             if self.select_setting_options == 4: # 12/24hr clock
                 self._settings.twelve_hr = not self._settings.twelve_hr
             if self.select_setting_options == 5: # DST adjust
-                old_dst = self._settings.dst_adjust
                 self._settings.dst_adjust = not self._settings.dst_adjust
                 # If NTP is disabled, manually adjust the RTC time by +/- 1 hour
                 if not self._settings.ntp_enabled:
