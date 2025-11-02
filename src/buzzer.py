@@ -10,33 +10,46 @@ class Buzzer:
         self._buzzer = DigitalInOut(BUZZ_PIN)
         self._buzzer.direction = Direction.OUTPUT
         self._settings = settings
-        self._start_beep = False
-        self.beep_count = 0
+        self._beep_counter = 0
+        self._beep_active = False
 
 
     def buzzer_start(self):
         """ Start the buzzing sound """
-        self._buzzer.value = True
+        if self._settings.beep:
+            self._buzzer.value = True
 
 
     def buzzer_stop(self):
         """ Stop the buzzing sound """
         self._buzzer.value = False
+        self._beep_active = False
+        self._beep_counter = 0
+
 
     def judgment_buzzer_switch(self):    
-        if self.is_beeping():
+        """Simple beep for key actions"""
+        if self._settings.beep:
+            self._beep_active = True
+            self._beep_counter = 0
             self.buzzer_start()
-        self._start_beep = True
+
 
     def three_beep(self):
-        """ beep over the course of 3 ticks """
-        if self.is_beeping():
-            self.judgment_buzzer_switch()
-            self.beep_count += 1
-            if self.beep_count == 3:
+        """ beep for a key press - should be called once per key press """
+        if self._settings.beep and not self._beep_active:
+            self._beep_active = True
+            self._beep_counter = 0
+            self.buzzer_start()
+
+
+    def update(self):
+        """Call this regularly from main loop to handle beep timing"""
+        if self._beep_active:
+            self._beep_counter += 1
+            if self._beep_counter >= 3:  # Beep for 3 cycles
                 self.buzzer_stop()
-                self.beep_count = 0
-                self._start_beep = False
+
 
     def is_beeping(self):
-        return self._start_beep and self._settings.beep
+        return self._beep_active
