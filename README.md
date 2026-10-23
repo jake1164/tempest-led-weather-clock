@@ -1,6 +1,8 @@
 # tempest-led-weather-clock
 LED Matrix Clock with weather running on a Raspberry Pico 2 W with a WaveShare [Pico-RGB-Matrix-P3-64x32](https://www.waveshare.com/wiki/Pico-RGB-Matrix-P3-64x32) and displaying weather information from a WeatherFlow Tempest weather station. For those without a Tempest check out the Open Weather Maps driven solution [Pico-RGB-Matrix-Weather-Clock](https://github.com/jake1164/Pico-RGB-Matrix-Weather-Clock)
 
+[♥ Support this project](#support-development)
+
 ## NOTE: RASPBERRY PICO 2 W is REQUIRED for this to work.
 The pico while wonderful has too many memory limitations. The [pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/) is a drop in replacement and will make everything just work. 
 
@@ -98,3 +100,18 @@ to your .vscode.json config file.
 
 # KNOWN ISSUES
 Memory is on the ragged edge of the Pico W limits and as such many api requests fail do to memory allocation issues.
+
+## More Projects
+
+**Pimoroni & Maker Projects:** [Presto AI Dash](https://github.com/jake1164/presto-ai-dash) (AI usage dashboard) · [Presto Snake](https://github.com/jake1164/presto-snake) · [Awesome Pimoroni Presto](https://github.com/jake1164/awesome-Pimoroni-Presto) · [Pico RGB Matrix Weather Clock](https://github.com/jake1164/Pico-RGB-Matrix-Weather-Clock) (OpenWeatherMap weather clock)
+
+**Self-Hosted Software:** [Family Librarian](https://github.com/jake1164/family-librarian) (family ebook and audiobook requests) · [M3Undle](https://github.com/Sydney-Elvis/M3Undle) (IPTV lineup manager and proxy)
+
+## Support Development
+
+If Tempest LED Weather Clock is useful, giving it a GitHub star helps others discover it. GitHub sponsorships and coffee donations are optional ways to support continued development, hardware testing, and maintenance.
+
+<p align="center">
+  <a href="https://github.com/sponsors/jake1164"><img src="docs/images/sponsor-github.svg" alt="Support jake1164 on GitHub Sponsors" height="35"></a>
+  <a href="https://buymeacoffee.com/jake1164s"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Support jake1164 on Buy Me a Coffee" height="35"></a>
+</p>
